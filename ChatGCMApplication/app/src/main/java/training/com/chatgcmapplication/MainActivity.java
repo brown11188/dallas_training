@@ -16,9 +16,7 @@ import training.com.servies.RegistrationIdManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    public Button btn_register;
-
-    String PROJECT_NUMBER = "815732457951";
+    private Button btn_register;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_register:
-                RegistrationIdManager registrationIdManager = new RegistrationIdManager(this, PROJECT_NUMBER);
+                RegistrationIdManager registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
                 registrationIdManager.registerIfNeeded(new RegistrationIdManager.RegistrationCompletedHandler() {
                     @Override
                     public void onSuccess(String registrationId, boolean isNewRegistration) {
