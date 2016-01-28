@@ -17,13 +17,9 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Bundle bundle = intent.getExtras();
-        Intent msg_intent = new Intent("Msg");
-        msg_intent.putExtra("msg", bundle.getString("message"));
-        Log.i("Receiver",  bundle.getString("message"));
-        LocalBroadcastManager.getInstance(context).sendBroadcast(msg_intent);
-
-        startWakefulService(context, msg_intent);
+        Intent gcmIntent =  new Intent(context, MessageService.class);
+        gcmIntent.putExtras (intent.getExtras());
+        startWakefulService(context, gcmIntent);
         setResultCode(Activity.RESULT_OK);
     }
 }
