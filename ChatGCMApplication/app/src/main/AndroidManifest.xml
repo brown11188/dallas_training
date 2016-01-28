@@ -45,7 +45,7 @@
         </receiver>
 
         <service
-            android:name="training.com.servies.MessageListenerService"
+            android:name="training.com.services.MessageListenerService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -54,14 +54,14 @@
         </service>
 
         <receiver
-            android:name="training.com.servies.MessageReceiver"
+            android:name="training.com.services.MessageReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <category android:name="training.com.chatgcmapplication" />
             </intent-filter>
         </receiver>
-        <service android:name="training.com.servies.MessageService" />
+        <service android:name="training.com.services.MessageService" />
 
         <activity
             android:name=".ChatActivity"

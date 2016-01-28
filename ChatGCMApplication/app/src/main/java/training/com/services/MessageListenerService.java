@@ -1,7 +1,6 @@
-package training.com.servies;
+package training.com.services;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -14,8 +13,6 @@ public class MessageListenerService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
+
     }
 }

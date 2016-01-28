@@ -1,4 +1,4 @@
-package training.com.servies;
+package training.com.services;
 
 import android.app.Activity;
 import android.content.Context;

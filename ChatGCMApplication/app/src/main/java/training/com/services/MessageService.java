@@ -1,4 +1,4 @@
-package training.com.servies;
+package training.com.services;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -71,7 +71,6 @@ public class MessageService extends IntentService {
 
     private void sendNotification(String message) {
 
-        Log.i("Notification", "In notification method");
         Intent intent = new Intent(this, ChatActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
@@ -86,7 +85,5 @@ public class MessageService extends IntentService {
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, builder.build());
-
-
     }
 }
