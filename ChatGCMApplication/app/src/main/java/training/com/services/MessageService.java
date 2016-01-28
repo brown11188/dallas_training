@@ -11,6 +11,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -49,6 +50,9 @@ public class MessageService extends IntentService {
             Log.i("Success", "Receive message successful");
             sendDataToActivity(bundle.getString("from"), bundle.getString("message"));
             sendNotification(bundle.getString("message"));
+            Intent br_intent = new Intent("Msg");
+            br_intent.putExtra("message", bundle.getString("message"));
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         }
         MessageReceiver.completeWakefulIntent(intent);
     }

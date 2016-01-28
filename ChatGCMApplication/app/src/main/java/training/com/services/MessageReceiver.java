@@ -18,9 +18,9 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         Bundle bundle = intent.getExtras();
         Intent br_intent = new Intent("Msg");
         br_intent.putExtra("message", bundle.getString("message"));
+        br_intent.putExtra("from", bundle.getString("from"));
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
-
         Intent gcmIntent =  new Intent(context, MessageService.class);
         gcmIntent.putExtras (intent.getExtras());
         startWakefulService(context, gcmIntent);
