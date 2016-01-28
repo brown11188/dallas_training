@@ -67,7 +67,7 @@
             android:name=".ChatActivity"
             android:label="@string/title_activity_chat"
             android:theme="@style/MyMaterialTheme"></activity>
-        <activity android:name=".ContactActivity"></activity>
+        <activity android:name=".HomePageActivity"></activity>
     </application>
 
 </manifest>
