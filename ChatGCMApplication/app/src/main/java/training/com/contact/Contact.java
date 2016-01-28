@@ -7,11 +7,13 @@ public class Contact {
     private String userId;
     private String userName;
     private String lastMsg;
+    private String regId;
 
-    public Contact(String userId, String userName, String lastMgs) {
+    public Contact(String userId, String userName, String lastMgs, String regId) {
         this.userId = userId;
         this.userName = userName;
         this.lastMsg = lastMgs;
+        this.regId = regId;
     }
 
     public Contact() {
@@ -40,5 +42,13 @@ public class Contact {
 
     public void setLastMsg(String lastMgs) {
         this.lastMsg = lastMgs;
+    }
+
+    public String getRegId() {
+        return regId;
+    }
+
+    public void setRegId(String regId) {
+        this.regId = regId;
     }
 }
