@@ -1,5 +1,6 @@
 package training.com.chatgcmapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,6 +18,7 @@ import training.com.servies.RegistrationIdManager;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btn_register;
+    private Button btn_contact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +28,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
 
         btn_register = (Button) findViewById(R.id.btn_register);
+        btn_contact = (Button) findViewById(R.id.btn_contact);
+
         btn_register.setOnClickListener(this);
+        btn_contact.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
+        Intent intent ;
         switch (v.getId()) {
             case R.id.btn_register:
                 RegistrationIdManager registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
@@ -44,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.i("Registration Id", "Register Fail");
                     }
                 });
+                break;
+            case R.id.btn_contact:
+                intent = new Intent(MainActivity.this,ContactActivity.class);
+                MainActivity.this.startActivity(intent);
                 break;
         }
     }

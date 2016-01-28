@@ -28,7 +28,13 @@
             android:layout_height="80dp"
             android:text="Get Reg Id"
             android:onClick="registerToken"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_contact"
+            android:text="Contact"/>
     </LinearLayout>
+
 
 
 </android.support.design.widget.CoordinatorLayout>
