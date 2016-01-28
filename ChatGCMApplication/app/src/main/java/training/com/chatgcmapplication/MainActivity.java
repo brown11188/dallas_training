@@ -11,7 +11,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import training.com.common.AppConfig;
-import training.com.servies.RegistrationIdManager;
+import training.com.services.RegistrationIdManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
