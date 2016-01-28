@@ -17,6 +17,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
 
         Bundle bundle = intent.getExtras();
         Intent br_intent = new Intent("Msg");
+        br_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         br_intent.putExtra("message", bundle.getString("message"));
         br_intent.putExtra("from", bundle.getString("from"));
 

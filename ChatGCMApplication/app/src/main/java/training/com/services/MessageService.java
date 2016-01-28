@@ -11,8 +11,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
@@ -47,47 +45,36 @@ public class MessageService extends IntentService {
 //                sendDataToActivity(bundle.getString("from"),bundle.getString("message") );
 //                Log.i("Success", "Receive message successful");
 //            }
-            Log.i("Success", "Receive message successful");
-            sendDataToActivity(bundle.getString("from"), bundle.getString("message"));
-            sendNotification(bundle.getString("message"));
-            Intent br_intent = new Intent("Msg");
-            br_intent.putExtra("message", bundle.getString("message"));
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            sendNotification(bundle.getString("from"), bundle.getString("message"));
+
         }
         MessageReceiver.completeWakefulIntent(intent);
     }
 
-    private void sendDataToActivity(String from, String message) {
+
+    private void sendNotification(String from, String message) {
         try {
             Bundle bundle = new Bundle();
             bundle.putString("from", from);
             bundle.putString("message", message);
-            Intent chat = new Intent(this, ChatActivity.class);
-            chat.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            chat.putExtra("INFO", bundle);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 1000, chat, PendingIntent.FLAG_UPDATE_CURRENT);
-            pendingIntent.send(this, 1000, chat);
+            Intent intent = new Intent(this, ChatActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra("INFO", bundle);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+            pendingIntent.send(this, 0, intent);
+
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                    .setContentTitle("New message")
+                    .setSound(defaultSoundUri)
+                    .setContentText(message)
+                    .setSmallIcon(R.drawable.ic_notification)
+                    .setContentIntent(pendingIntent);
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(0, builder.build());
         } catch (PendingIntent.CanceledException e) {
             e.printStackTrace();
         }
-
-    }
-
-    private void sendNotification(String message) {
-
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setContentTitle("New message")
-                .setSound(defaultSoundUri)
-                .setContentText(message)
-                .setSmallIcon(R.drawable.ic_notification)
-                .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, builder.build());
     }
 }
