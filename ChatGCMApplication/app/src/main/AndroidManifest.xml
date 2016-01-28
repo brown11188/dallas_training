@@ -55,22 +55,13 @@
 
         <receiver
             android:name="training.com.servies.MessageReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-
                 <category android:name="training.com.chatgcmapplication" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name="training.com.servies.MessageService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="android.intent.action.PHONE_STATE" />
-            </intent-filter>
-        </service>
+        <service android:name="training.com.servies.MessageService" />
 
         <activity
             android:name=".ChatActivity"
