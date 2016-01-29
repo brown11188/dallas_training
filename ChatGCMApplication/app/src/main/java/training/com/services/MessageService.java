@@ -11,8 +11,12 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import training.com.chatgcmapplication.ChatActivity;
 import training.com.chatgcmapplication.R;
@@ -22,8 +26,8 @@ import training.com.chatgcmapplication.R;
  */
 public class MessageService extends IntentService {
 
-    private SharedPreferences preferences;
-    private BroadcastReceiver myReceiver;
+    private List<String> message_array = new ArrayList<>();
+
 
     public MessageService() {
         super("MessageService");
@@ -33,6 +37,8 @@ public class MessageService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Bundle bundle = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+
+
 
         String messageType = gcm.getMessageType(intent);
         if (!bundle.isEmpty()) {
@@ -53,28 +59,35 @@ public class MessageService extends IntentService {
 
 
     private void sendNotification(String from, String message) {
-        try {
-            Bundle bundle = new Bundle();
-            bundle.putString("from", from);
-            bundle.putString("message", message);
-            Intent intent = new Intent(this, ChatActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra("INFO", bundle);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-            pendingIntent.send(this, 0, intent);
+//        try {
+        Bundle bundle = new Bundle();
+        bundle.putString("from", from);
+        bundle.putString("message", message);
+        Intent intent = new Intent(this, ChatActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("INFO", bundle);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+//            pendingIntent.send(this, 0, intent);
 
-            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                    .setContentTitle("New message")
-                    .setSound(defaultSoundUri)
-                    .setContentText(message)
-                    .setSmallIcon(R.drawable.ic_notification)
-                    .setContentIntent(pendingIntent);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setContentTitle("New message")
+                .setSound(defaultSoundUri)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
 
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(0, builder.build());
-        } catch (PendingIntent.CanceledException e) {
-            e.printStackTrace();
-        }
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0, builder.build());
+//        } catch (PendingIntent.CanceledException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    private void addMessageToStack(String message) {
+        message_array.add(message);
+        Log.i("Quantity of message: ", message_array.size() + "");
     }
 }

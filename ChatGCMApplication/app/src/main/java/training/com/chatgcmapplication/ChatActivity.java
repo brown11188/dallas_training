@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -18,11 +19,17 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class ChatActivity extends AppCompatActivity {
     private Button btn_send;
     private EditText txt_chat;
     private TableLayout tab_content;
     private Bundle bundle;
+    private SharedPreferences preferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,22 +37,30 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        preferences = getSharedPreferences("CHAT", 0);
+
 
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         bundle = getIntent().getBundleExtra("INFO");
 
+        Set<String> set = preferences.getStringSet("message_set", null);
+
+
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-        if(bundle.getString("message") != null) {
-            TableRow tableRow  = new TableRow(getApplicationContext());
-            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-            TextView textView = new TextView(getApplicationContext());
-            textView.setTextSize(20);
-            textView.setTextColor(Color.parseColor("#A901DB"));
-            textView.setText(Html.fromHtml("<b>" + bundle.getString("from") + " : </b>" + bundle.getString("message")));
-            tableRow.addView(textView);
-            tab_content.addView(tableRow);
+        if(set.size() >0) {
+            for(String element: set) {
+                TableRow tableRow  = new TableRow(getApplicationContext());
+                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                TextView textView = new TextView(getApplicationContext());
+                textView.setTextSize(20);
+                textView.setTextColor(Color.parseColor("#0B0719"));
+                textView.setText(Html.fromHtml("<b>" + bundle.getString("from") + " : </b>" + element));
+                tableRow.addView(textView);
+                tab_content.addView(tableRow);
+            }
+
         }
 
         btn_send.setOnClickListener(new View.OnClickListener() {
@@ -68,7 +83,7 @@ public class ChatActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("from");
-            Log.i("In Chat Activity", message);
+
             TableRow tableRow = new TableRow(getApplicationContext());
             tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
             TextView textview = new TextView(getApplicationContext());
@@ -79,6 +94,12 @@ public class ChatActivity extends AppCompatActivity {
             tab_content.addView(tableRow);
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 
     @Override
     protected void onDestroy() {
