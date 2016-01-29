@@ -23,10 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import training.com.common.AppConfig;
+import training.com.services.MessageSender;
+import training.com.services.MessageSenderContent;
+
 public class ChatActivity extends AppCompatActivity {
     private Button btn_send;
     private EditText txt_chat;
     private TableLayout tab_content;
+    private String userFullName;
+    private String registId;
     private Bundle bundle;
     private SharedPreferences preferences;
 
@@ -43,8 +49,11 @@ public class ChatActivity extends AppCompatActivity {
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
-        bundle = getIntent().getBundleExtra("INFO");
-
+        //bundle = getIntent().getBundleExtra("INFO");
+        bundle = getIntent().getExtras();
+        registId = bundle.getString("regId");
+        userFullName = bundle.getString("name");
+        this.setTitle(userFullName);
         Set<String> set = preferences.getStringSet("message_set", null);
 
 
@@ -66,11 +75,15 @@ public class ChatActivity extends AppCompatActivity {
         btn_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bundle bundle = getIntent().getBundleExtra("INFO");
-                if (bundle.getString("message") != null) {
-                    Log.i("Chat Activity", bundle.getString("message"));
-                }
-
+//                Bundle bundle = getIntent().getBundleExtra("INFO");
+//                if (bundle.getString("message") != null) {
+//                    Log.i("Chat Activity", bundle.getString("message"));
+//                }
+                String message = txt_chat.getText().toString();
+                MessageSender mgsSender = new MessageSender();
+                MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
+                Log.i("CONTENT", mgsContent.toString());
+                mgsSender.sendPost(AppConfig.API_KEY,mgsContent);
             }
         });
     }
@@ -106,5 +119,11 @@ public class ChatActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onNotice);
         super.onDestroy();
 
+    }
+    public static MessageSenderContent createMegContent(String regId, String title, String message) {
+        MessageSenderContent mgsContent = new MessageSenderContent();
+        mgsContent.addRegId(regId);
+        mgsContent.createData(title, message);
+        return mgsContent;
     }
 }
