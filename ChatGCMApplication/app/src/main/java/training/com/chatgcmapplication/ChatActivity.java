@@ -19,15 +19,13 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import training.com.common.AppConfig;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity  implements View.OnClickListener{
     private Button btn_send;
     private EditText txt_chat;
     private TableLayout tab_content;
@@ -49,6 +47,8 @@ public class ChatActivity extends AppCompatActivity {
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
+
+        btn_send.setOnClickListener(this);
         //bundle = getIntent().getBundleExtra("INFO");
         bundle = getIntent().getExtras();
         registId = bundle.getString("regId");
@@ -58,9 +58,9 @@ public class ChatActivity extends AppCompatActivity {
 
 
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-        if(set.size() >0) {
-            for(String element: set) {
-                TableRow tableRow  = new TableRow(getApplicationContext());
+        if (set.size() > 0) {
+            for (String element : set) {
+                TableRow tableRow = new TableRow(getApplicationContext());
                 tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
                 TextView textView = new TextView(getApplicationContext());
                 textView.setTextSize(20);
@@ -72,24 +72,8 @@ public class ChatActivity extends AppCompatActivity {
 
         }
 
-        btn_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Bundle bundle = getIntent().getBundleExtra("INFO");
-//                if (bundle.getString("message") != null) {
-//                    Log.i("Chat Activity", bundle.getString("message"));
-//                }
-                String message = txt_chat.getText().toString();
-                MessageSender mgsSender = new MessageSender();
-                MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
-                Log.i("CONTENT", mgsContent.toString());
-                mgsSender.sendPost(AppConfig.API_KEY,mgsContent);
-            }
-        });
+
     }
-
-
-
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
         @Override
@@ -125,5 +109,18 @@ public class ChatActivity extends AppCompatActivity {
         mgsContent.addRegId(regId);
         mgsContent.createData(title, message);
         return mgsContent;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.btn_send:
+                String message = txt_chat.getText().toString();
+                MessageSender mgsSender = new MessageSender();
+                MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
+                Log.i("CONTENT", mgsContent.toString());
+                mgsSender.sendPost(AppConfig.API_KEY,mgsContent);
+                break;
+        }
     }
 }
