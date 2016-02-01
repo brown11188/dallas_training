@@ -11,12 +11,15 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import training.com.common.AppConfig;
+import training.com.database.DatabaseHelper;
 import training.com.services.RegistrationIdManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btn_register;
     private Button btn_contact;
+
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,11 +28,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        databaseHelper =  new DatabaseHelper(getApplicationContext());
+
         btn_register = (Button) findViewById(R.id.btn_register);
         btn_contact = (Button) findViewById(R.id.btn_contact);
 
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
+
+//        databaseHelper.closeDB();
     }
 
     @Override
