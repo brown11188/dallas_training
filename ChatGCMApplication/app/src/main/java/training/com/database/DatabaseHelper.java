@@ -2,12 +2,14 @@ package training.com.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 
@@ -40,6 +42,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private static final String MESSAGE = "message";
     private static final String EXPIRES_TIME = "expires_time";
 
+    private static final String[] USER_INFO = {USER_ID,USERNAME,REGISTRATION_ID};
+
     private static final String CREATE_TABLE_USERS = "CREATE table " + TABLE_USERS + "("
             + USER_ID + " integer PRIMARY KEY AUTOINCREMENT,"
             + USERNAME + " varchar(50) not null,"
@@ -50,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             + MESSAGE + " text,"
             + EXPIRES_TIME + " datetime,"
             + USER_ID + " integer, foreign key (" + USER_ID +") references " + TABLE_USERS + "(" + USER_ID + "))";
+    private static final String SELECT_ALL_USER = "SELECT * FROM "+TABLE_USERS;
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -97,6 +102,41 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         values.put(USER_ID, user_id);
         database.insert(TABLE_CHAT_CONTENT, null, values);
         database.close();
+    }
+    @Override
+    public ArrayList<Users> getUsers(){
+        ArrayList<Users> userList = new ArrayList<Users>();
+        ContentValues values = new ContentValues();
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        Cursor cursor = database.rawQuery(SELECT_ALL_USER, null);
+        Users users = null;
+        if(cursor.moveToFirst()){
+            do{
+                users = new Users();
+                users.getUserId();
+                users.getUserName();
+                users.getPassword();
+                users.getRegistrationId();
+                userList.add(users);
+            }while (cursor.moveToNext());
+        }
+        Log.i("GETUSER",userList.toString());
+        return userList;
+    }
+    @Override
+    public Users getUser(int userId){
+        SQLiteDatabase database = this.getWritableDatabase();
+        Cursor cursor = database.query(TABLE_USERS,USER_INFO,USER_ID+"= ?",
+                new String[]{String.valueOf(userId)},null,null,null,null);
+        if(cursor!= null)cursor.moveToFirst();
+        Users user = new Users();
+        user.setUserId(Integer.parseInt(cursor.getString(0)));
+        user.setUserName(cursor.getString(1));
+        user.setRegistrationId(cursor.getString(2));
+
+
+        return user;
     }
 
 }

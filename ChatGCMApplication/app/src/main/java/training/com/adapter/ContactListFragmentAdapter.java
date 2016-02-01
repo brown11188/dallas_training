@@ -12,15 +12,16 @@ import java.util.ArrayList;
 
 import training.com.chatgcmapplication.R;
 import training.com.contact.Contact;
+import training.com.model.Users;
 
 /**
  * Created by hawk on 27/01/2016.
  */
 public class ContactListFragmentAdapter extends BaseAdapter {
     private Context context;
-    private ArrayList<Contact> listContact;
+    private ArrayList<Users> listContact;
 
-    public ContactListFragmentAdapter(Context context, ArrayList<Contact> listContact) {
+    public ContactListFragmentAdapter(Context context, ArrayList<Users> listContact) {
         this.context = context;
         this.listContact = listContact;
     }
@@ -50,7 +51,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
 
         tv_userName.setText(listContact.get(position).getUserName());
-        tv_lasMsg.setText(listContact.get(position).getLastMsg());
+        tv_lasMsg.setText("Test");
 
         return convertView;
     }

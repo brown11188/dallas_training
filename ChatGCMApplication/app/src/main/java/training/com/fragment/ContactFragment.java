@@ -18,11 +18,15 @@ import training.com.chatgcmapplication.ChatActivity;
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
 import training.com.contact.Contact;
+import training.com.database.DatabaseHelper;
+import training.com.model.Users;
 
 /**
  * Created by hawk on 27/01/2016.
  */
 public class ContactFragment extends Fragment implements AdapterView.OnItemClickListener {
+
+    private DatabaseHelper databaseHelper;
 
     @Nullable
     @Override
@@ -30,9 +34,9 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
 
         View rootView = inflater.inflate(R.layout.list_contact, container, false);
 
-        ArrayList<Contact> contacts = getListContact();
+        ArrayList<Users> users= databaseHelper.getUsers();
         ListView list_contact =(ListView)rootView.findViewById(R.id.list_contact);
-        list_contact.setAdapter(new ContactListFragmentAdapter(getActivity(), contacts));
+        list_contact.setAdapter(new ContactListFragmentAdapter(getActivity(), users));
         list_contact.setOnItemClickListener(this);
         return rootView;
     }
