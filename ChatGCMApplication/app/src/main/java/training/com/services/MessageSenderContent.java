@@ -21,9 +21,9 @@ public class MessageSenderContent implements Serializable {
     }
 
     public void createData(String title,String message) {
-        if (data == null) {
+        if (data == null)
             data = new HashMap<String, String>();
-        }
+
         data.put("title", title);
         data.put("message", message);
     }
@@ -47,8 +47,8 @@ public class MessageSenderContent implements Serializable {
     @Override
     public String toString() {
         return "MessageSenderContent{" +
-                "registration_ids:" + registration_ids +
-                ", data:" + data +
+                "registration_ids=" + registration_ids +
+                ", data=" + data +
                 '}';
     }
 

@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,6 +35,7 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
     private String registId;
     private Bundle bundle;
     private SharedPreferences preferences;
+    private MessageSender mgsSender;
 
 
     @Override
@@ -48,6 +51,7 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
 
+
         btn_send.setOnClickListener(this);
         //bundle = getIntent().getBundleExtra("INFO");
         bundle = getIntent().getExtras();
@@ -56,21 +60,20 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
         this.setTitle(userFullName);
         Set<String> set = preferences.getStringSet("message_set", null);
 
-
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-        if (set.size() > 0) {
-            for (String element : set) {
-                TableRow tableRow = new TableRow(getApplicationContext());
-                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                TextView textView = new TextView(getApplicationContext());
-                textView.setTextSize(20);
-                textView.setTextColor(Color.parseColor("#0B0719"));
-                textView.setText(Html.fromHtml("<b>" + bundle.getString("from") + " : </b>" + element));
-                tableRow.addView(textView);
-                tab_content.addView(tableRow);
-            }
-
-        }
+//        if (set.size() > 0) {
+//            for (String element : set) {
+//                TableRow tableRow = new TableRow(getApplicationContext());
+//                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+//                TextView textView = new TextView(getApplicationContext());
+//                textView.setTextSize(20);
+//                textView.setTextColor(Color.parseColor("#0B0719"));
+//                textView.setText(Html.fromHtml("<b>" + bundle.getString("from") + " : </b>" + element));
+//                tableRow.addView(textView);
+//                tab_content.addView(tableRow);
+//            }
+//
+//        }
 
 
     }
@@ -104,7 +107,7 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
         super.onDestroy();
 
     }
-    public static MessageSenderContent createMegContent(String regId, String title, String message) {
+    private static MessageSenderContent createMegContent(String regId, String title, String message) {
         MessageSenderContent mgsContent = new MessageSenderContent();
         mgsContent.addRegId(regId);
         mgsContent.createData(title, message);
@@ -116,10 +119,10 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
         switch (v.getId()){
             case R.id.btn_send:
                 String message = txt_chat.getText().toString();
-                MessageSender mgsSender = new MessageSender();
+                mgsSender = new MessageSender();
                 MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
                 Log.i("CONTENT", mgsContent.toString());
-                mgsSender.sendPost(AppConfig.API_KEY,mgsContent);
+                mgsSender.sendPost(mgsContent);
                 break;
         }
     }

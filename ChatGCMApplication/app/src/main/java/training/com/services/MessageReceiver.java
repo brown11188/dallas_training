@@ -28,7 +28,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         Intent br_intent = new Intent("Msg");
         br_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         br_intent.putExtra("message", bundle.getString("message"));
-        br_intent.putExtra("from", bundle.getString("from"));
+        br_intent.putExtra("from", bundle.getString("title"));
         Log.i("HEHEHE", bundle.getString("message"));
         SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
