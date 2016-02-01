@@ -21,6 +21,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import training.com.common.AppConfig;
@@ -66,8 +69,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         registId = bundle.getString("regId");
 
-        Set<String> set = preferences.getStringSet("message_set", null);
-
+        Set<String> set =  preferences.getStringSet("message_set", null);
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (set.size() > 0) {
             for (String element : set) {

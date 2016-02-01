@@ -5,16 +5,16 @@ import java.util.Date;
 /**
  * Created by enclaveit on 2/1/16.
  */
-public class ChatContent {
+public class Message {
 
     private int userId;
     private String message;
     private Date expiresTime;
 
-    public ChatContent() {
+    public Message() {
     }
 
-    public ChatContent(int userId, String message, Date expiresTime) {
+    public Message(int userId, String message, Date expiresTime) {
         this.userId = userId;
         this.message = message;
         this.expiresTime = expiresTime;

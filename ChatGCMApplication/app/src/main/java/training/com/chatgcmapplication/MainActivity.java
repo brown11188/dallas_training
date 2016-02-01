@@ -2,6 +2,7 @@ package training.com.chatgcmapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -10,8 +11,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import training.com.common.AppConfig;
 import training.com.database.DatabaseHelper;
+import training.com.model.Message;
+import training.com.model.Users;
 import training.com.services.RegistrationIdManager;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -20,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_contact;
 
     private DatabaseHelper databaseHelper;
+    private Users user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +42,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
+        //Just for test Sqlite database
+        user = setDefaultUserValue();
 
-//        databaseHelper.closeDB();
+        databaseHelper.addUser(user);
+//        databaseHelper.addMessage(message);
     }
 
     @Override
@@ -62,6 +72,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+    //function below just for test
+    private Users setDefaultUserValue(){
+        Users users = new Users();
+        users.setUserId(1);
+        users.setUserName("Harold");
+        users.setPassword("123123");
+        users.setRegistrationId(AppConfig.HAROLD_KEY);
+        return users;
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

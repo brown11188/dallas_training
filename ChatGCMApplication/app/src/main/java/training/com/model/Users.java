@@ -12,13 +12,13 @@ public class Users {
     private String password;
     private String registrationId;
 
-    private Collection<ChatContent> chatContent = new HashSet<>(0);
+    private Collection<Message> messages = new HashSet<>(0);
 
     public Users() {
     }
 
-    public Users(Collection<ChatContent> chatContent, String registrationId, String password, String userName, int userId) {
-        this.chatContent = chatContent;
+    public Users(Collection<Message> messages, String registrationId, String password, String userName, int userId) {
+        this.messages = messages;
         this.registrationId = registrationId;
         this.password = password;
         this.userName = userName;
@@ -57,11 +57,11 @@ public class Users {
         this.registrationId = registrationId;
     }
 
-    public Collection<ChatContent> getChatContent() {
-        return chatContent;
+    public Collection<Message> getChatContent() {
+        return messages;
     }
 
-    public void setChatContent(Collection<ChatContent> chatContent) {
-        this.chatContent = chatContent;
+    public void setChatContent(Collection<Message> chatContent) {
+        this.messages = messages;
     }
 }

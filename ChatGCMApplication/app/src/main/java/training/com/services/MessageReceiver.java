@@ -9,9 +9,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import training.com.database.DatabaseHelper;
 
 /**
  * Created by enclaveit on 1/27/16.
@@ -20,6 +25,8 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
 
     private static final String PREF_NAME = "CHAT";
 
+    private DatabaseHelper databaseHelper;
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -27,17 +34,24 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
 
         Intent br_intent = new Intent("Msg");
         br_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        br_intent.putExtra("message", bundle.getString("message"));
+        String message = bundle.getString("message");
+        br_intent.putExtra("message", message);
         br_intent.putExtra("name", bundle.getString("title"));
-        Log.i("Title ", bundle.getString("title"));
+        databaseHelper =  new DatabaseHelper(context);
+
+        //Save chat history
         SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Collection<String> set = preferences.getStringSet("message_set", new HashSet<String>());
-
-        set.add(bundle.getString("message"));
+        Log.i("Set values", set.toString());
+        set.add(message);
         editor.putStringSet("message_set", (Set<String>) set);
-//        editor.clear();
         editor.commit();
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+
+        databaseHelper.addMessage(message,dateFormat.format(cal.getTime()), 1 );
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);
@@ -45,6 +59,4 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         startWakefulService(context, gcmIntent);
         setResultCode(Activity.RESULT_OK);
     }
-
-
 }
