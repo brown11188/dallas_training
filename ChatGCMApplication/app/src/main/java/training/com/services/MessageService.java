@@ -51,7 +51,7 @@ public class MessageService extends IntentService {
 //                sendDataToActivity(bundle.getString("from"),bundle.getString("message") );
 //                Log.i("Success", "Receive message successful");
 //            }
-            sendNotification(bundle.getString("from"), bundle.getString("message"));
+            sendNotification(bundle.getString("title"), bundle.getString("message"));
 
         }
         MessageReceiver.completeWakefulIntent(intent);
@@ -59,16 +59,12 @@ public class MessageService extends IntentService {
 
 
     private void sendNotification(String from, String message) {
-//        try {
         Bundle bundle = new Bundle();
-        bundle.putString("from", from);
+        bundle.putString("name", from);
         bundle.putString("message", message);
         Intent intent = new Intent(this, ChatActivity.class);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("INFO", bundle);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-//            pendingIntent.send(this, 0, intent);
-
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setContentTitle("New message")
@@ -81,13 +77,6 @@ public class MessageService extends IntentService {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0, builder.build());
-//        } catch (PendingIntent.CanceledException e) {
-//            e.printStackTrace();
-//        }
     }
 
-    private void addMessageToStack(String message) {
-        message_array.add(message);
-        Log.i("Quantity of message: ", message_array.size() + "");
-    }
 }

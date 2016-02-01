@@ -27,7 +27,7 @@ import training.com.common.AppConfig;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity  implements View.OnClickListener{
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btn_send;
     private EditText txt_chat;
     private TableLayout tab_content;
@@ -36,6 +36,7 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
     private Bundle bundle;
     private SharedPreferences preferences;
     private MessageSender mgsSender;
+    private String senderName;
 
 
     @Override
@@ -53,36 +54,41 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
 
 
         btn_send.setOnClickListener(this);
-        //bundle = getIntent().getBundleExtra("INFO");
         bundle = getIntent().getExtras();
+        if (getIntent().getBundleExtra("INFO") != null) {
+            userFullName = getIntent().getBundleExtra("INFO").getString("name");
+            Log.i("Sender name", userFullName);
+            this.setTitle(senderName);
+
+        } else {
+            userFullName = bundle.getString("name");
+            this.setTitle(userFullName);
+        }
         registId = bundle.getString("regId");
-        userFullName = bundle.getString("name");
-        this.setTitle(userFullName);
+
         Set<String> set = preferences.getStringSet("message_set", null);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-//        if (set.size() > 0) {
-//            for (String element : set) {
-//                TableRow tableRow = new TableRow(getApplicationContext());
-//                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-//                TextView textView = new TextView(getApplicationContext());
-//                textView.setTextSize(20);
-//                textView.setTextColor(Color.parseColor("#0B0719"));
-//                textView.setText(Html.fromHtml("<b>" + bundle.getString("from") + " : </b>" + element));
-//                tableRow.addView(textView);
-//                tab_content.addView(tableRow);
-//            }
-//
-//        }
-
-
+        if (set.size() > 0) {
+            for (String element : set) {
+                TableRow tableRow = new TableRow(getApplicationContext());
+                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                TextView textView = new TextView(getApplicationContext());
+                textView.setTextSize(20);
+                textView.setTextColor(Color.parseColor("#0B0719"));
+//                Log.i("Sender name", senderName);
+                textView.setText(Html.fromHtml("<b>" + userFullName + " : </b>" + element));
+                tableRow.addView(textView);
+                tab_content.addView(tableRow);
+            }
+        }
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
-            String sender = intent.getStringExtra("from");
+            String sender = intent.getStringExtra("name");
 
             TableRow tableRow = new TableRow(getApplicationContext());
             tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
@@ -107,6 +113,7 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
         super.onDestroy();
 
     }
+
     private static MessageSenderContent createMegContent(String regId, String title, String message) {
         MessageSenderContent mgsContent = new MessageSenderContent();
         mgsContent.addRegId(regId);
@@ -116,12 +123,11 @@ public class ChatActivity extends AppCompatActivity  implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btn_send:
                 String message = txt_chat.getText().toString();
                 mgsSender = new MessageSender();
                 MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
-                Log.i("CONTENT", mgsContent.toString());
                 mgsSender.sendPost(mgsContent);
                 break;
         }
