@@ -15,5 +15,6 @@ public interface DatabaseDAO {
     void addMessage(String message, String expires_date, int user_id );
     ArrayList<Users> getUsers();
     Users getUser(String registration_id);
-    List<Message> getMessges();
+    List<Message> getMessges(int user_id);
+    Message getLastMessage(int user_id);
 }

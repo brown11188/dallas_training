@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Set;
 
 import training.com.common.AppConfig;
+import training.com.database.DatabaseHelper;
+import training.com.model.Message;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
@@ -40,12 +42,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private String userFullName;
     private String registId;
     private Bundle bundle;
-    private SharedPreferences preferences;
     private MessageSender mgsSender;
     private ScrollView scrollView;
+    private DatabaseHelper databaseHelper;
 
 
-    @TargetApi(Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +58,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
+        databaseHelper = new DatabaseHelper(getApplicationContext());
         btn_send.setOnClickListener(this);
         bundle = getIntent().getExtras();
+        Log.i("Last message", databaseHelper.getLastMessage(1).getExpiresTime().toString());
         if (getIntent().getBundleExtra("INFO") != null) {
             userFullName = getIntent().getBundleExtra("INFO").getString("name");
             Log.i("Sender name", userFullName);
@@ -68,21 +72,13 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             this.setTitle(userFullName);
         }
         registId = bundle.getString("regId");
-        preferences = getSharedPreferences("CHAT", 0);
-        Set<String> set =  preferences.getStringSet("message_set", null);
+        List<Message> messages =  databaseHelper.getMessges(1);
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-//        if (set.size() > 0) {
-//            for (String element : set) {
-//                TableRow tableRow = new TableRow(getApplicationContext());
-//                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-//                TextView textView = new TextView(getApplicationContext());
-//                textView.setTextSize(20);
-//                textView.setTextColor(Color.parseColor("#0B0719"));
-//                textView.setText(Html.fromHtml("<b>" + userFullName + " : </b>" + element));
-//                tableRow.addView(textView);
-//                tab_content.addView(tableRow);
-//            }
-//        }
+        if (messages.size() > 0) {
+            for (Message element : messages) {
+                displayMessage(userFullName, element.getMessage());
+            }
+        }
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -90,14 +86,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("name");
-            TableRow tableRow = new TableRow(getApplicationContext());
-            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-            TextView textview = new TextView(getApplicationContext());
-            textview.setTextSize(20);
-            textview.setTextColor(Color.parseColor("#0B0719"));
-            textview.setText(Html.fromHtml("<b>" + sender + " : </b>" + message));
-            tableRow.addView(textview);
-            tab_content.addView(tableRow);
+            displayMessage(sender, message);
         }
     };
 
@@ -129,7 +118,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 mgsSender = new MessageSender();
                 MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
                 mgsSender.sendPost(mgsContent);
+                txt_chat.setText("");
+                displayMessage(userFullName, message);
                 break;
         }
+    }
+
+    private void displayMessage(String username, String message) {
+        TableRow tableRow = new TableRow(getApplicationContext());
+        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        TextView textview = new TextView(getApplicationContext());
+        textview.setTextSize(20);
+        textview.setTextColor(Color.parseColor("#000000"));
+        textview.setText(Html.fromHtml("<b>" + username + " : </b>" + message));
+        tableRow.addView(textview);
+        tab_content.addView(tableRow);
     }
 }
