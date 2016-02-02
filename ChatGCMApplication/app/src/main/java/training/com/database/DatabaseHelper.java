@@ -130,17 +130,19 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     }
 
     @Override
-    public Users getUser(String registration_id) {
-        SQLiteDatabase database = this.getWritableDatabase();
-        Cursor cursor = database.query(TABLE_USERS, USER_INFO, REGISTRATION_ID + "= ?",
-                new String[]{String.valueOf(registration_id)}, null, null, null, null);
-        if (cursor != null) cursor.moveToFirst();
+    public Users getUser(String userName) {
+        SQLiteDatabase database = this.getReadableDatabase();
+//        Cursor cursor = database.query(TABLE_USERS, USER_INFO, REGISTRATION_ID + "= ?",
+//                new String[]{String.valueOf(registration_id)}, null, null, null, null);
+        String selectUser = "SELECT "+ USER_ID +","+USERNAME+","+REGISTRATION_ID+
+                " FROM "+TABLE_USERS+" WHERE "+USERNAME+" ='"+userName.trim()+"'";
+        Cursor cursor = database.rawQuery(selectUser,null);
+        if (cursor != null)cursor.moveToFirst();
         Users user = new Users();
-        user.setUserId(Integer.parseInt(cursor.getString(0)));
-        user.setUserName(cursor.getString(1));
-        user.setRegistrationId(cursor.getString(2));
-
-
+        user.setUserId(cursor.getColumnIndex(USER_ID));
+        user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
+        user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
+        Log.i("ULIST", user.toString());
         return user;
     }
 

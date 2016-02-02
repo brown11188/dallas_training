@@ -39,9 +39,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         br_intent.putExtra("message", message);
         br_intent.putExtra("name", bundle.getString("title"));
         databaseHelper =  new DatabaseHelper(context);
-
-        Users user = databaseHelper.getUser(bundle.getString("registration_ids"));
-
+        Users user = databaseHelper.getUser(bundle.getString("title"));
         //Save chat history
         SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -54,7 +52,8 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
 
-        databaseHelper.addMessage(message,dateFormat.format(cal.getTime()), user.getUserId() );
+
+        databaseHelper.addMessage(message, dateFormat.format(cal.getTime()), user.getUserId());
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);
