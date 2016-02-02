@@ -12,6 +12,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import training.com.chatgcmapplication.R;
+import training.com.database.DatabaseHelper;
+import training.com.model.Message;
 import training.com.model.Users;
 
 /**
@@ -20,10 +22,12 @@ import training.com.model.Users;
 public class ContactListFragmentAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<Users> listContact;
+    private DatabaseHelper databaseHelper;
 
     public ContactListFragmentAdapter(Context context, ArrayList<Users> listContact) {
         this.context = context;
         this.listContact = listContact;
+        databaseHelper = new DatabaseHelper(context);
     }
 
     @Override
@@ -51,7 +55,9 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
         Log.i("LSIT", String.valueOf(listContact));
         tv_userName.setText(listContact.get(position).getUserName());
-        tv_lasMsg.setText("TODO");
+        int userId = listContact.get(position).getUserId();
+        Message message = (Message) databaseHelper.getLastMessage(userId);
+        tv_lasMsg.setText(message.getMessage());
 
         return convertView;
     }
