@@ -2,6 +2,7 @@ package training.com.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import training.com.chatgcmapplication.R;
-import training.com.contact.Contact;
 import training.com.model.Users;
 
 /**
@@ -49,9 +49,9 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         }
         TextView tv_userName = (TextView)convertView.findViewById(R.id.tv_userName);
         TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
-
+        Log.i("LSIT", String.valueOf(listContact));
         tv_userName.setText(listContact.get(position).getUserName());
-        tv_lasMsg.setText("Test");
+        tv_lasMsg.setText("TODO");
 
         return convertView;
     }

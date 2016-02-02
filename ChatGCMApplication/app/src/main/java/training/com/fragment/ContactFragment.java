@@ -1,6 +1,8 @@
 package training.com.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -31,6 +33,7 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        databaseHelper = new DatabaseHelper(getActivity().getApplicationContext());
 
         View rootView = inflater.inflate(R.layout.list_contact, container, false);
 
@@ -57,7 +60,9 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         contact.setRegId(AppConfig.HAROLD_KEY);
         contacts.add(contact);
 
+        Log.i("TEST USER",contacts.toString());
         return contacts;
+
     }
 
 

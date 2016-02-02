@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 import training.com.dao.DatabaseDAO;
 import training.com.model.Message;
@@ -106,22 +107,24 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     @Override
     public ArrayList<Users> getUsers(){
         ArrayList<Users> userList = new ArrayList<Users>();
-        ContentValues values = new ContentValues();
+
         SQLiteDatabase database = this.getWritableDatabase();
 
+
         Cursor cursor = database.rawQuery(SELECT_ALL_USER, null);
+
         Users users = null;
+
         if(cursor.moveToFirst()){
             do{
                 users = new Users();
-                users.getUserId();
-                users.getUserName();
-                users.getPassword();
-                users.getRegistrationId();
+                users.setUserId(cursor.getColumnIndex(USER_ID));
+                users.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
+                users.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
                 userList.add(users);
             }while (cursor.moveToNext());
         }
-        Log.i("GETUSER",userList.toString());
+
         return userList;
     }
     @Override
@@ -134,7 +137,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         user.setUserId(Integer.parseInt(cursor.getString(0)));
         user.setUserName(cursor.getString(1));
         user.setRegistrationId(cursor.getString(2));
-
 
         return user;
     }
