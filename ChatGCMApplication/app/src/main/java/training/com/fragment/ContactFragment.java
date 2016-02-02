@@ -29,6 +29,8 @@ import training.com.model.Users;
 public class ContactFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private DatabaseHelper databaseHelper;
+    private String RegistId;
+    private String UserName;
 
     @Nullable
     @Override
@@ -69,8 +71,9 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent chatIntent = new Intent(getActivity(), ChatActivity.class);
-        chatIntent.putExtra("regId",getListContact().get(position).getRegId());
-        chatIntent.putExtra("name",getListContact().get(position).getUserName());
+
+        chatIntent.putExtra("regId",databaseHelper.getUsers().get(position).getRegistrationId());
+        chatIntent.putExtra("name",databaseHelper.getUsers().get(position).getUserName());
         startActivity(chatIntent);
     }
 }
