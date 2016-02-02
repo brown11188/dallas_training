@@ -71,18 +71,18 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         preferences = getSharedPreferences("CHAT", 0);
         Set<String> set =  preferences.getStringSet("message_set", null);
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-        if (set.size() > 0) {
-            for (String element : set) {
-                TableRow tableRow = new TableRow(getApplicationContext());
-                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                TextView textView = new TextView(getApplicationContext());
-                textView.setTextSize(20);
-                textView.setTextColor(Color.parseColor("#0B0719"));
-                textView.setText(Html.fromHtml("<b>" + userFullName + " : </b>" + element));
-                tableRow.addView(textView);
-                tab_content.addView(tableRow);
-            }
-        }
+//        if (set.size() > 0) {
+//            for (String element : set) {
+//                TableRow tableRow = new TableRow(getApplicationContext());
+//                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+//                TextView textView = new TextView(getApplicationContext());
+//                textView.setTextSize(20);
+//                textView.setTextColor(Color.parseColor("#0B0719"));
+//                textView.setText(Html.fromHtml("<b>" + userFullName + " : </b>" + element));
+//                tableRow.addView(textView);
+//                tab_content.addView(tableRow);
+//            }
+//        }
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -90,7 +90,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("name");
-
+            Log.i("Content",message );
             TableRow tableRow = new TableRow(getApplicationContext());
             tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
             TextView textview = new TextView(getApplicationContext());

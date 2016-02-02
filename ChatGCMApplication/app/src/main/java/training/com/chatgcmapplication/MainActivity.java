@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Just for test Sqlite database
         user = setDefaultUserValue();
 
-        databaseHelper.addUser(user);
 //        databaseHelper.addMessage(message);
     }
 
