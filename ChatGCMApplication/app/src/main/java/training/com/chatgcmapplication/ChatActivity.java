@@ -24,6 +24,9 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -42,8 +45,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private String userFullName;
     private String registId;
     private Bundle bundle;
+    private String chatTitle;
     private MessageSender mgsSender;
     private ScrollView scrollView;
+    private int userId;
     private DatabaseHelper databaseHelper;
 
 
@@ -61,13 +66,15 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         databaseHelper = new DatabaseHelper(getApplicationContext());
         btn_send.setOnClickListener(this);
         bundle = getIntent().getExtras();
+        chatTitle = bundle.getString("titleName");
         if (getIntent().getBundleExtra("INFO") != null) {
             userFullName = getIntent().getBundleExtra("INFO").getString("name");
+            chatTitle = bundle.getString("titleName");
             Log.i("Sender name", userFullName);
-            this.setTitle(userFullName);
+            this.setTitle(chatTitle);
         } else {
             userFullName = bundle.getString("name");
-            this.setTitle(userFullName);
+            this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
         List<Message> messages = databaseHelper.getMessges(databaseHelper.getUser(userFullName).getUserId());
@@ -113,9 +120,16 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btn_send:
                 String message = txt_chat.getText().toString();
+                databaseHelper = new DatabaseHelper(getApplicationContext());
                 mgsSender = new MessageSender();
                 MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
                 mgsSender.sendPost(mgsContent);
+
+                Calendar cal = Calendar.getInstance();
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                userId = databaseHelper.getUser(userFullName).getUserId();
+                databaseHelper.addMessage(message,dateFormat.format(cal.getTime()),userId);
+
                 txt_chat.setText("");
                 displayMessage(userFullName, message);
                 break;
