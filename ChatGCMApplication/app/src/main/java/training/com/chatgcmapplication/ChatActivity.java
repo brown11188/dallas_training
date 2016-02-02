@@ -56,12 +56,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
-        scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-
-            }
-        });
         btn_send.setOnClickListener(this);
         bundle = getIntent().getExtras();
         if (getIntent().getBundleExtra("INFO") != null) {

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -127,18 +128,47 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
 
         return userList;
     }
+
     @Override
-    public Users getUser(int userId){
+    public Users getUser(String registration_id) {
         SQLiteDatabase database = this.getWritableDatabase();
-        Cursor cursor = database.query(TABLE_USERS,USER_INFO,USER_ID+"= ?",
-                new String[]{String.valueOf(userId)},null,null,null,null);
-        if(cursor!= null)cursor.moveToFirst();
+        Cursor cursor = database.query(TABLE_USERS, USER_INFO, REGISTRATION_ID + "= ?",
+                new String[]{String.valueOf(registration_id)}, null, null, null, null);
+        if (cursor != null) cursor.moveToFirst();
         Users user = new Users();
         user.setUserId(Integer.parseInt(cursor.getString(0)));
         user.setUserName(cursor.getString(1));
         user.setRegistrationId(cursor.getString(2));
 
+
         return user;
+    }
+
+    @Override
+    public List<Message> getMessges() {
+        SQLiteDatabase database = this.getReadableDatabase();
+        List<Message> messages = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT;
+        Cursor cursor = database.rawQuery(selectQuery, null);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        if (cursor.moveToFirst()) {
+            do {
+                try {
+                    Message message = new Message();
+                    message.setMessage(cursor.getString(0));
+                    Date date = formatter.parse(cursor.getString(1));
+                    message.setExpiresTime(date);
+                    message.setUserId(Integer.parseInt(cursor.getString(2)));
+                    messages.add(message);
+                } catch (ParseException e) {
+                    Log.e("ParseException: ", e.getMessage());
+                }
+            } while (cursor.moveToNext());
+        }
+
+        return messages;
     }
 
 }
