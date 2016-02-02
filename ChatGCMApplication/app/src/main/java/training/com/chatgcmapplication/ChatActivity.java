@@ -90,7 +90,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("name");
-            Log.i("Content",message );
             TableRow tableRow = new TableRow(getApplicationContext());
             tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
             TextView textview = new TextView(getApplicationContext());
