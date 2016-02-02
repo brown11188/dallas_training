@@ -147,11 +147,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     }
 
     @Override
-    public List<Message> getMessges() {
+    public List<Message> getMessges(int user_id) {
         SQLiteDatabase database = this.getReadableDatabase();
         List<Message> messages = new ArrayList<>();
 
-        String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT;
+        String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE " + USER_ID + "= " + user_id;
         Cursor cursor = database.rawQuery(selectQuery, null);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -171,6 +171,27 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         }
 
         return messages;
+    }
+
+    @Override
+    public Message getLastMessage(int user_id) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        Message message = new Message();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        try {
+            String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE " + USER_ID + "= " + user_id;
+            Cursor cursor = database.rawQuery(selectQuery, null);
+            cursor.moveToLast();
+            message.setMessage(cursor.getString(0));
+            Date date = formatter.parse(cursor.getString(1));
+            message.setExpiresTime(date);
+            message.setUserId(Integer.parseInt(cursor.getString(2)));
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return message;
     }
 
 }
