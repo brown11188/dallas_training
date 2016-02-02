@@ -1,7 +1,7 @@
 package training.com.dao;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 import training.com.model.Message;
 import training.com.model.Users;
@@ -14,5 +14,6 @@ public interface DatabaseDAO {
     void addUser(Users user);
     void addMessage(String message, String expires_date, int user_id );
     ArrayList<Users> getUsers();
-    Users getUser(int userId);
+    Users getUser(String registration_id);
+    List<Message> getMessges();
 }

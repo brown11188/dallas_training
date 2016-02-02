@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import training.com.database.DatabaseHelper;
+import training.com.model.Users;
 
 /**
  * Created by enclaveit on 1/27/16.
@@ -39,6 +40,8 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         br_intent.putExtra("name", bundle.getString("title"));
         databaseHelper =  new DatabaseHelper(context);
 
+        Users user = databaseHelper.getUser(bundle.getString("registration_ids"));
+
         //Save chat history
         SharedPreferences preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -46,12 +49,12 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         Log.i("Set values", set.toString());
         set.add(message);
         editor.putStringSet("message_set", (Set<String>) set);
-        editor.commit();
+        editor.apply();
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
 
-        databaseHelper.addMessage(message,dateFormat.format(cal.getTime()), 1 );
+        databaseHelper.addMessage(message,dateFormat.format(cal.getTime()), user.getUserId() );
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);
