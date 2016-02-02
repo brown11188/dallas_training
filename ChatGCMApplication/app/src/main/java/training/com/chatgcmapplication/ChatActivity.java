@@ -47,7 +47,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private DatabaseHelper databaseHelper;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,21 +57,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
+        forceScrollViewToBottom();
         databaseHelper = new DatabaseHelper(getApplicationContext());
         btn_send.setOnClickListener(this);
         bundle = getIntent().getExtras();
-        Log.i("Last message", databaseHelper.getLastMessage(1).getExpiresTime().toString());
         if (getIntent().getBundleExtra("INFO") != null) {
             userFullName = getIntent().getBundleExtra("INFO").getString("name");
             Log.i("Sender name", userFullName);
             this.setTitle(userFullName);
-
         } else {
             userFullName = bundle.getString("name");
             this.setTitle(userFullName);
         }
         registId = bundle.getString("regId");
-        List<Message> messages =  databaseHelper.getMessges(1);
+        List<Message> messages = databaseHelper.getMessges(databaseHelper.getUser(userFullName).getUserId());
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
             for (Message element : messages) {
@@ -129,9 +127,19 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         TextView textview = new TextView(getApplicationContext());
         textview.setTextSize(20);
+        textview.setMaxLines(2);
         textview.setTextColor(Color.parseColor("#000000"));
         textview.setText(Html.fromHtml("<b>" + username + " : </b>" + message));
         tableRow.addView(textview);
         tab_content.addView(tableRow);
+    }
+
+    private void forceScrollViewToBottom() {
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 }

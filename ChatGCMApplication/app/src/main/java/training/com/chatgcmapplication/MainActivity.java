@@ -42,10 +42,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
-        //Just for test Sqlite database
-        user = setDefaultUserValue();
-
-//        databaseHelper.addMessage(message);
     }
 
     @Override
@@ -71,17 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
-    //function below just for test
-    private Users setDefaultUserValue(){
-        Users users = new Users();
-        users.setUserId(1);
-        users.setUserName("Harold");
-        users.setPassword("123123");
-        users.setRegistrationId(AppConfig.HAROLD_KEY);
-        return users;
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

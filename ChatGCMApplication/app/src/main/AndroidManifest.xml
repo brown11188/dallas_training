@@ -67,7 +67,9 @@
             android:name=".ChatActivity"
             android:launchMode="singleTask"
             android:label="@string/title_activity_chat"
-            android:theme="@style/MyMaterialTheme" />
+            android:theme="@style/MyMaterialTheme"
+            android:parentActivityName=".HomePageActivity"
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity android:name=".HomePageActivity" />
     </application>

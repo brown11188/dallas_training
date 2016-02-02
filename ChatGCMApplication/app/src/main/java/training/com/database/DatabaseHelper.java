@@ -139,7 +139,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         Cursor cursor = database.rawQuery(selectUser,null);
         if (cursor != null)cursor.moveToFirst();
         Users user = new Users();
-        user.setUserId(cursor.getColumnIndex(USER_ID));
+        user.setUserId(cursor.getInt(0));
         user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
         user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
         Log.i("ULIST", user.toString());
@@ -164,6 +164,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                     message.setExpiresTime(date);
                     message.setUserId(Integer.parseInt(cursor.getString(2)));
                     messages.add(message);
+                    database.close();
                 } catch (ParseException e) {
                     Log.e("ParseException: ", e.getMessage());
                 }
@@ -187,7 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             Date date = formatter.parse(cursor.getString(1));
             message.setExpiresTime(date);
             message.setUserId(Integer.parseInt(cursor.getString(2)));
-
+            database.close();
         } catch (ParseException e) {
             e.printStackTrace();
         }
