@@ -161,10 +161,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             do {
                 try {
                     Message message = new Message();
-                    message.setMessage(cursor.getString(0));
-                    Date date = formatter.parse(cursor.getString(1));
+                    message.setMessage_id(cursor.getInt(0));
+                    message.setMessage(cursor.getString(1));
+                    Date date = formatter.parse(cursor.getString(2));
                     message.setExpiresTime(date);
-                    message.setUserId(Integer.parseInt(cursor.getString(2)));
+                    message.setUserId(Integer.parseInt(cursor.getString(3)));
                     messages.add(message);
                     database.close();
                 } catch (ParseException e) {
@@ -186,10 +187,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE " + USER_ID + "= " + user_id;
             Cursor cursor = database.rawQuery(selectQuery, null);
             if (cursor.moveToLast()) {
-                message.setMessage(cursor.getString(0));
-                Date date = formatter.parse(cursor.getString(1));
+                message.setMessage_id(cursor.getInt(0));
+                message.setMessage(cursor.getString(1));
+                Date date = formatter.parse(cursor.getString(2));
                 message.setExpiresTime(date);
-                message.setUserId(Integer.parseInt(cursor.getString(2)));
+                message.setUserId(Integer.parseInt(cursor.getString(3)));
                 database.close();
             }
         } catch (ParseException e) {

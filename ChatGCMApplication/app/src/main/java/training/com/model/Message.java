@@ -7,6 +7,7 @@ import java.util.Date;
  */
 public class Message {
 
+    private int message_id;
     private int userId;
     private String message;
     private Date expiresTime;
@@ -14,10 +15,19 @@ public class Message {
     public Message() {
     }
 
-    public Message(int userId, String message, Date expiresTime) {
+    public Message(int message_id,int userId, String message, Date expiresTime) {
+        this.message_id = message_id;
         this.userId = userId;
         this.message = message;
         this.expiresTime = expiresTime;
+    }
+
+    public int getMessage_id() {
+        return message_id;
+    }
+
+    public void setMessage_id(int message_id) {
+        this.message_id = message_id;
     }
 
     public int getUserId() {
