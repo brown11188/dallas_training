@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -29,7 +28,6 @@ public class HomePageActivity extends AppCompatActivity {
         viewPager = (ViewPager)findViewById(R.id.pager);
         HomePageAdapter homePageAdapter = new HomePageAdapter
                 (getFragmentManager(),tabLayout.getTabCount());
-
         viewPager.setAdapter(homePageAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

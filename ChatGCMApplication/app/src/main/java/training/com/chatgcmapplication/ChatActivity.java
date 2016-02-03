@@ -1,16 +1,11 @@
 package training.com.chatgcmapplication;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -24,15 +19,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-import training.com.common.AppConfig;
 import training.com.common.TimeUtil;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
@@ -59,6 +47,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_chat);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
@@ -80,7 +69,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
             for (Message element : messages) {
-                displayMessage(chatTitle, element.getMessage());
+                displayMessage(databaseHelper.getUserByUserId(element.getUserId()).getUserName(), element.getMessage(), element.getUserId());
             }
         }
     }
@@ -90,7 +79,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("name");
-            displayMessage(sender, message);
+            displayMessage(sender, message, databaseHelper.getUser(sender).getUserId());
         }
     };
 
@@ -106,6 +95,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
 
     }
+
 
     private static MessageSenderContent createMegContent(String regId, String title, String message) {
         MessageSenderContent mgsContent = new MessageSenderContent();
@@ -126,18 +116,22 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 userId = databaseHelper.getUser(chatTitle).getUserId();
                 databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, 1);
                 txt_chat.setText("");
-                displayMessage(chatTitle, message);
+                displayMessage(chatTitle, message, 1);
                 break;
         }
     }
 
-    private void displayMessage(String username, String message) {
+    private void displayMessage(String username, String message, int user_id) {
         TableRow tableRow = new TableRow(getApplicationContext());
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         TextView textview = new TextView(getApplicationContext());
         textview.setTextSize(20);
         textview.setMaxLines(2);
-        textview.setTextColor(Color.parseColor("#000000"));
+        if(user_id == 1) {
+            textview.setTextColor(Color.parseColor("#0066ff"));
+        } else {
+            textview.setTextColor(Color.parseColor("#000000"));
+        }
         textview.setText(Html.fromHtml("<b>" + username + " : </b>" + message));
         tableRow.addView(textview);
         tab_content.addView(tableRow);
