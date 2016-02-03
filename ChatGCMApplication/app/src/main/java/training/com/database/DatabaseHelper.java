@@ -27,7 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private SQLiteDatabase database;
     private static final String TAG = "Database Helper";
 
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     private static final String DB_NAME = "db_chat";
 
@@ -41,6 +41,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private static final String REGISTRATION_ID = "registration_id";
 
     //Column name of tbl_chat_content table
+    private static final String MESSAGE_ID = "message_id";
     private static final String MESSAGE = "message";
     private static final String EXPIRES_TIME = "expires_time";
 
@@ -53,6 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             + REGISTRATION_ID + " varchar(200)" + ")";
 
     private static final String CREATE_TABLE_CHAT_CONTENT = "CREATE table " + TABLE_CHAT_CONTENT + "("
+            + MESSAGE_ID + " integer PRIMARY KEY AUTOINCREMENT, "
             + MESSAGE + " text,"
             + EXPIRES_TIME + " datetime,"
             + USER_ID + " integer, foreign key (" + USER_ID +") references " + TABLE_USERS + "(" + USER_ID + "))";

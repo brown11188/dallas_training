@@ -70,14 +70,14 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         if (getIntent().getBundleExtra("INFO") != null) {
             userFullName = getIntent().getBundleExtra("INFO").getString("name");
             chatTitle = bundle.getString("titleName");
-            Log.i("Sender name", userFullName);
             this.setTitle(chatTitle);
         } else {
-            userFullName = bundle.getString("name");
+            userFullName = bundle.getString("titleName");
             this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
-        List<Message> messages = databaseHelper.getMessges(databaseHelper.getUser(userFullName).getUserId());
+        Log.i("USER ID", chatTitle);
+        List<Message> messages = databaseHelper.getMessges(databaseHelper.getUser(chatTitle).getUserId());
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
             for (Message element : messages) {
