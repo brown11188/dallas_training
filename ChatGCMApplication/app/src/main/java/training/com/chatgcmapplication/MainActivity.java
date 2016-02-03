@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_contact;
 
     private DatabaseHelper databaseHelper;
-    private Users user;
+    private Users user, user1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,18 +35,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        databaseHelper =  new DatabaseHelper(getApplicationContext());
+        databaseHelper = new DatabaseHelper(getApplicationContext());
 
         btn_register = (Button) findViewById(R.id.btn_register);
         btn_contact = (Button) findViewById(R.id.btn_contact);
 
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
+
+//        user = setDefaultUserValue();
+//        user1 = setDefaultUserValue1();
+//
+//        databaseHelper.addUser(user);
+//        databaseHelper.addUser(user1);
+    }
+
+    private Users setDefaultUserValue() {
+        Users users = new Users();
+        users.setUserId(1);
+        users.setUserName("Harold");
+        users.setPassword("123123");
+        users.setRegistrationId(AppConfig.HAROLD_KEY);
+        return users;
+    }
+
+    private Users setDefaultUserValue1() {
+        Users users = new Users();
+        users.setUserId(2);
+        users.setUserName("Hawk");
+        users.setPassword("123123");
+        users.setRegistrationId(AppConfig.HAWK_KEY);
+        return users;
     }
 
     @Override
     public void onClick(View v) {
-        Intent intent ;
+        Intent intent;
         switch (v.getId()) {
             case R.id.btn_register:
                 RegistrationIdManager registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
@@ -55,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onSuccess(String registrationId, boolean isNewRegistration) {
                         Log.i("Registration Id", registrationId);
                     }
+
                     @Override
                     public void onFailure(String ex) {
                         Log.i("Registration Id", "Register Fail");
@@ -62,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
                 break;
             case R.id.btn_contact:
-                intent = new Intent(MainActivity.this,HomePageActivity.class);
+                intent = new Intent(MainActivity.this, HomePageActivity.class);
                 MainActivity.this.startActivity(intent);
                 break;
         }

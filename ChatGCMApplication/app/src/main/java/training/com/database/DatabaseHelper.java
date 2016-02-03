@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private static final String MESSAGE = "message";
     private static final String EXPIRES_TIME = "expires_time";
 
-    private static final String[] USER_INFO = {USER_ID,USERNAME,REGISTRATION_ID};
+    private static final String[] USER_INFO = {USER_ID, USERNAME, REGISTRATION_ID};
 
     private static final String CREATE_TABLE_USERS = "CREATE table " + TABLE_USERS + "("
             + USER_ID + " integer PRIMARY KEY AUTOINCREMENT,"
@@ -57,14 +57,13 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             + MESSAGE_ID + " integer PRIMARY KEY AUTOINCREMENT, "
             + MESSAGE + " text,"
             + EXPIRES_TIME + " datetime,"
-            + USER_ID + " integer, foreign key (" + USER_ID +") references " + TABLE_USERS + "(" + USER_ID + "))";
-    private static final String SELECT_ALL_USER = "SELECT * FROM "+TABLE_USERS;
+            + USER_ID + " integer, foreign key (" + USER_ID + ") references " + TABLE_USERS + "(" + USER_ID + "))";
+    private static final String SELECT_ALL_USER = "SELECT * FROM " + TABLE_USERS;
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         database = getWritableDatabase();
     }
-
 
 
     @Override
@@ -86,9 +85,9 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
 
     @Override
     public void addUser(Users user) {
-        SQLiteDatabase database =  this.getWritableDatabase();
+        SQLiteDatabase database = this.getWritableDatabase();
 
-        ContentValues values =  new ContentValues();
+        ContentValues values = new ContentValues();
         values.put(USERNAME, user.getUserName());
         values.put(PASSWORD, user.getPassword());
         values.put(REGISTRATION_ID, user.getRegistrationId());
@@ -100,15 +99,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     public void addMessage(String message, String expires_date, int user_id) {
         SQLiteDatabase database = this.getWritableDatabase();
 
-        ContentValues values =  new ContentValues();
+        ContentValues values = new ContentValues();
         values.put(MESSAGE, message);
         values.put(EXPIRES_TIME, expires_date);
         values.put(USER_ID, user_id);
         database.insert(TABLE_CHAT_CONTENT, null, values);
         database.close();
     }
+
     @Override
-    public ArrayList<Users> getUsers(){
+    public ArrayList<Users> getUsers() {
         ArrayList<Users> userList = new ArrayList<Users>();
 
         SQLiteDatabase database = this.getWritableDatabase();
@@ -118,14 +118,14 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
 
         Users users = null;
 
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 users = new Users();
                 users.setUserId(cursor.getInt(0));
                 users.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
                 users.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
                 userList.add(users);
-            }while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
 
         return userList;
@@ -136,10 +136,10 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         SQLiteDatabase database = this.getReadableDatabase();
 //        Cursor cursor = database.query(TABLE_USERS, USER_INFO, REGISTRATION_ID + "= ?",
 //                new String[]{String.valueOf(registration_id)}, null, null, null, null);
-        String selectUser = "SELECT "+ USER_ID +","+USERNAME+","+REGISTRATION_ID+
-                " FROM "+TABLE_USERS+" WHERE "+USERNAME+" ='"+userName.trim()+"'";
-        Cursor cursor = database.rawQuery(selectUser,null);
-        if (cursor != null)cursor.moveToFirst();
+        String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID +
+                " FROM " + TABLE_USERS + " WHERE " + USERNAME + " ='" + userName.trim() + "'";
+        Cursor cursor = database.rawQuery(selectUser, null);
+        if (cursor != null) cursor.moveToFirst();
         Users user = new Users();
         user.setUserId(cursor.getInt(0));
         user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
@@ -185,12 +185,13 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         try {
             String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE " + USER_ID + "= " + user_id;
             Cursor cursor = database.rawQuery(selectQuery, null);
-            cursor.moveToLast();
-            message.setMessage(cursor.getString(0));
-            Date date = formatter.parse(cursor.getString(1));
-            message.setExpiresTime(date);
-            message.setUserId(Integer.parseInt(cursor.getString(2)));
-            database.close();
+            if (cursor.moveToLast()) {
+                message.setMessage(cursor.getString(0));
+                Date date = formatter.parse(cursor.getString(1));
+                message.setExpiresTime(date);
+                message.setUserId(Integer.parseInt(cursor.getString(2)));
+                database.close();
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
