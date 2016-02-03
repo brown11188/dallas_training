@@ -12,9 +12,9 @@ import training.com.model.Users;
 public interface DatabaseDAO {
 
     void addUser(Users user);
-    void addMessage(String message, String expires_date, int user_id );
+    void addMessage(String message, String expires_date, int user_id, int sender_id );
     ArrayList<Users> getUsers();
     Users getUser(String registration_id);
-    List<Message> getMessges(int user_id);
-    Message getLastMessage(int user_id);
+    List<Message> getMessges(int user_id, int sender_id);
+    Message getLastMessage(int user_id, int sender_id);
 }

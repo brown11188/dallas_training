@@ -68,20 +68,18 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         bundle = getIntent().getExtras();
         chatTitle = bundle.getString("titleName");
         if (getIntent().getBundleExtra("INFO") != null) {
-            userFullName = getIntent().getBundleExtra("INFO").getString("name");
-            chatTitle = bundle.getString("titleName");
+            chatTitle = getIntent().getBundleExtra("INFO").getString("name");
             this.setTitle(chatTitle);
         } else {
-            userFullName = bundle.getString("titleName");
             this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
-        Log.i("USER ID", chatTitle);
-        List<Message> messages = databaseHelper.getMessges(databaseHelper.getUser(chatTitle).getUserId());
+        Log.i("User chat id", databaseHelper.getUser(chatTitle).getUserId()+"");
+        List<Message> messages = databaseHelper.getMessges(1,databaseHelper.getUser(chatTitle).getUserId() );
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
             for (Message element : messages) {
-                displayMessage(userFullName, element.getMessage());
+                displayMessage(chatTitle, element.getMessage());
             }
         }
     }
@@ -122,16 +120,14 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 String message = txt_chat.getText().toString();
                 databaseHelper = new DatabaseHelper(getApplicationContext());
                 mgsSender = new MessageSender();
-                MessageSenderContent mgsContent = createMegContent(registId, userFullName, message);
+                MessageSenderContent mgsContent = createMegContent(registId, chatTitle, message);
                 mgsSender.sendPost(mgsContent);
-
                 Calendar cal = Calendar.getInstance();
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                userId = databaseHelper.getUser(userFullName).getUserId();
-                databaseHelper.addMessage(message,dateFormat.format(cal.getTime()),userId);
-
+                userId = databaseHelper.getUser(chatTitle).getUserId();
+                databaseHelper.addMessage(message, dateFormat.format(cal.getTime()), userId, 1);
                 txt_chat.setText("");
-                displayMessage(userFullName, message);
+                displayMessage(chatTitle, message);
                 break;
         }
     }

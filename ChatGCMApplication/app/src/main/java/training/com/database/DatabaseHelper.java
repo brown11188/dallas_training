@@ -27,7 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private SQLiteDatabase database;
     private static final String TAG = "Database Helper";
 
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     private static final String DB_NAME = "db_chat";
 
@@ -44,6 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private static final String MESSAGE_ID = "message_id";
     private static final String MESSAGE = "message";
     private static final String EXPIRES_TIME = "expires_time";
+    private static final String SENDER_ID = "sender_id";
 
     private static final String[] USER_INFO = {USER_ID, USERNAME, REGISTRATION_ID};
 
@@ -57,6 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             + MESSAGE_ID + " integer PRIMARY KEY AUTOINCREMENT, "
             + MESSAGE + " text,"
             + EXPIRES_TIME + " datetime,"
+            + SENDER_ID + " int,"
             + USER_ID + " integer, foreign key (" + USER_ID + ") references " + TABLE_USERS + "(" + USER_ID + "))";
     private static final String SELECT_ALL_USER = "SELECT * FROM " + TABLE_USERS;
 
@@ -96,12 +98,13 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     }
 
     @Override
-    public void addMessage(String message, String expires_date, int user_id) {
+    public void addMessage(String message, String expires_date, int sender_id, int user_id) {
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(MESSAGE, message);
         values.put(EXPIRES_TIME, expires_date);
+        values.put(SENDER_ID, sender_id);
         values.put(USER_ID, user_id);
         database.insert(TABLE_CHAT_CONTENT, null, values);
         database.close();
@@ -144,19 +147,19 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         user.setUserId(cursor.getInt(0));
         user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
         user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
-        Log.i("ULIST", user.toString());
         return user;
     }
 
     @Override
-    public List<Message> getMessges(int user_id) {
+    public List<Message> getMessges(int user_id, int sender_id) {
         SQLiteDatabase database = this.getReadableDatabase();
         List<Message> messages = new ArrayList<>();
 
-        String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE " + USER_ID + "= " + user_id;
+        String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
+                + " AND " + SENDER_ID + " = " + sender_id + ") " +
+                "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ")";
         Cursor cursor = database.rawQuery(selectQuery, null);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
         if (cursor.moveToFirst()) {
             do {
                 try {
@@ -178,13 +181,15 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     }
 
     @Override
-    public Message getLastMessage(int user_id) {
+    public Message getLastMessage(int user_id, int sender_id) {
         SQLiteDatabase database = this.getReadableDatabase();
         Message message = new Message();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         try {
-            String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE " + USER_ID + "= " + user_id;
+            String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
+                    + " AND " + SENDER_ID + " = " + sender_id + ") " +
+                    "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ")";
             Cursor cursor = database.rawQuery(selectQuery, null);
             if (cursor.moveToLast()) {
                 message.setMessage_id(cursor.getInt(0));
@@ -195,9 +200,10 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 database.close();
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e("ParseException: ", e.getMessage());
         }
         return message;
     }
+
 
 }

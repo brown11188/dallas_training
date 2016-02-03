@@ -53,10 +53,9 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         }
         TextView tv_userName = (TextView)convertView.findViewById(R.id.tv_userName);
         TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
-        Log.i("LSIT", String.valueOf(listContact));
         tv_userName.setText(listContact.get(position).getUserName());
         int userId = listContact.get(position).getUserId();
-        Message message = (Message) databaseHelper.getLastMessage(userId);
+        Message message = databaseHelper.getLastMessage(userId, 1);
         tv_lasMsg.setText(message.getMessage());
 
         return convertView;

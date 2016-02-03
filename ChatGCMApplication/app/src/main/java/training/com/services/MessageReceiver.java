@@ -43,9 +43,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
-
-        Log.i("IDDDD",user.getUserId() +"");
-        databaseHelper.addMessage(message, dateFormat.format(cal.getTime()), user.getUserId());
+        databaseHelper.addMessage(message, dateFormat.format(cal.getTime()), 1, user.getUserId());
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);

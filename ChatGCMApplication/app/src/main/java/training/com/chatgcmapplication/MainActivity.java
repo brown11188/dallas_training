@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
-
+//
 //        user = setDefaultUserValue();
 //        user1 = setDefaultUserValue1();
 //
