@@ -1,6 +1,7 @@
 package training.com.chatgcmapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -11,27 +12,35 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
-import java.util.Calendar;
-import java.util.Date;
 
 import training.com.common.AppConfig;
 import training.com.database.DatabaseHelper;
-import training.com.model.Message;
 import training.com.model.Users;
 import training.com.services.RegistrationIdManager;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button btn_register;
     private Button btn_contact;
-
+    private Button btn_logout;
     private DatabaseHelper databaseHelper;
     private Users user, user1;
+    public SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
+        int id = preferences.getInt("userId",0);
+        Log.i("IDTEST", String.valueOf(id));
+        if(id==0){
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -39,15 +48,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_register = (Button) findViewById(R.id.btn_register);
         btn_contact = (Button) findViewById(R.id.btn_contact);
-
+        btn_logout = (Button) findViewById(R.id.btn_logout);
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
+//<<<<<<< HEAD
 //
 //        user = setDefaultUserValue();
 //        user1 = setDefaultUserValue1();
 //
 //        databaseHelper.addUser(user);
 //        databaseHelper.addUser(user1);
+//=======
+        btn_logout.setOnClickListener(this);
+
+
+//>>>>>>> Add login function
     }
 
     private Users setDefaultUserValue() {
@@ -90,6 +105,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent(MainActivity.this, HomePageActivity.class);
                 MainActivity.this.startActivity(intent);
                 break;
+            case R.id.btn_logout:
+                SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.clear();
+                editor.commit();
+                intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
         }
     }
 

@@ -1,7 +1,9 @@
 package training.com.database;
 
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
@@ -200,9 +202,11 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         try {
+
             String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
                     + " AND " + SENDER_ID + " = " + sender_id + ") " +
                     "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ")";
+
             Cursor cursor = database.rawQuery(selectQuery, null);
             if (cursor.moveToLast()) {
                 message.setMessage_id(cursor.getInt(0));
@@ -216,6 +220,22 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             Log.e("ParseException: ", e.getMessage());
         }
         return message;
+    }
+    @Override
+    public Users checkLogin(String userName,String password){
+        String selectUser = "SELECT "+ USER_ID + "," + USERNAME + "," + REGISTRATION_ID +" FROM "+TABLE_USERS+
+                " WHERE "+ USERNAME +"='"+userName +"' AND "
+                +PASSWORD+"='"+password+"'";
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.rawQuery(selectUser,null);
+        Users user = new Users();
+        if (cursor.moveToFirst()){
+            user.setUserId(cursor.getInt(0));
+            user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
+            user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
+            Log.i("ULIST", String.valueOf(cursor.getInt(0)));
+        }
+        return user;
     }
 
 

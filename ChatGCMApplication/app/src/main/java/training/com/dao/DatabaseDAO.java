@@ -14,8 +14,11 @@ public interface DatabaseDAO {
     void addUser(Users user);
     void addMessage(String message, String expires_date, int user_id, int sender_id );
     ArrayList<Users> getUsers();
+
     Users getUser(String username);
     Users getUserByUserId(int user_id);
     List<Message> getMessges(int user_id, int sender_id);
     Message getLastMessage(int user_id, int sender_id);
+    Users checkLogin(String userName, String password);
+
 }
