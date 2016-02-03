@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import training.com.common.AppConfig;
+import training.com.common.TimeUtil;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
 import training.com.services.MessageSender;
@@ -42,7 +43,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_send;
     private EditText txt_chat;
     private TableLayout tab_content;
-    private String userFullName;
     private String registId;
     private Bundle bundle;
     private String chatTitle;
@@ -50,6 +50,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private ScrollView scrollView;
     private int userId;
     private DatabaseHelper databaseHelper;
+    private TimeUtil timeUtil;
 
 
     @Override
@@ -62,6 +63,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
+        timeUtil = new TimeUtil();
         forceScrollViewToBottom();
         databaseHelper = new DatabaseHelper(getApplicationContext());
         btn_send.setOnClickListener(this);
@@ -74,7 +76,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
-        Log.i("User chat id", databaseHelper.getUser(chatTitle).getUserId()+"");
         List<Message> messages = databaseHelper.getMessges(1,databaseHelper.getUser(chatTitle).getUserId() );
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
@@ -122,10 +123,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 mgsSender = new MessageSender();
                 MessageSenderContent mgsContent = createMegContent(registId, chatTitle, message);
                 mgsSender.sendPost(mgsContent);
-                Calendar cal = Calendar.getInstance();
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 userId = databaseHelper.getUser(chatTitle).getUserId();
-                databaseHelper.addMessage(message, dateFormat.format(cal.getTime()), userId, 1);
+                databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, 1);
                 txt_chat.setText("");
                 displayMessage(chatTitle, message);
                 break;

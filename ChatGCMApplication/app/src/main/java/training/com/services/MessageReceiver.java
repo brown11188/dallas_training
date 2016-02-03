@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import training.com.common.TimeUtil;
 import training.com.database.DatabaseHelper;
 import training.com.model.Users;
 
@@ -24,15 +25,14 @@ import training.com.model.Users;
  */
 public class MessageReceiver extends WakefulBroadcastReceiver {
 
-    private static final String PREF_NAME = "CHAT";
-
     private DatabaseHelper databaseHelper;
+    private TimeUtil timeUtil;
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         Bundle bundle = intent.getExtras();
-
+        timeUtil = new TimeUtil();
         Intent br_intent = new Intent("Msg");
         br_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         String message = bundle.getString("message");
@@ -40,10 +40,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         br_intent.putExtra("name", bundle.getString("title"));
         databaseHelper =  new DatabaseHelper(context);
         Users user = databaseHelper.getUser(bundle.getString("title"));
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar cal = Calendar.getInstance();
-        databaseHelper.addMessage(message, dateFormat.format(cal.getTime()), 1, user.getUserId());
+        databaseHelper.addMessage(message, timeUtil.getCurrentTime(), 1, user.getUserId());
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);
