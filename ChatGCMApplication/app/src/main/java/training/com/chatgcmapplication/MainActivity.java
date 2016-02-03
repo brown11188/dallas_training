@@ -51,18 +51,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_logout = (Button) findViewById(R.id.btn_logout);
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
-//<<<<<<< HEAD
-//
+
 //        user = setDefaultUserValue();
 //        user1 = setDefaultUserValue1();
 //
 //        databaseHelper.addUser(user);
 //        databaseHelper.addUser(user1);
-//=======
         btn_logout.setOnClickListener(this);
 
 
-//>>>>>>> Add login function
+
     }
 
     private Users setDefaultUserValue() {
