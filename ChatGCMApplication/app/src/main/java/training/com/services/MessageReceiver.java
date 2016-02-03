@@ -40,6 +40,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         br_intent.putExtra("name", bundle.getString("title"));
         databaseHelper =  new DatabaseHelper(context);
         Users user = databaseHelper.getUser(bundle.getString("title"));
+        //put owner user_id to variable "1"
         databaseHelper.addMessage(message, timeUtil.getCurrentTime(), 1, user.getUserId());
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);

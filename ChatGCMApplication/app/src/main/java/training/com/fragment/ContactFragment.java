@@ -48,6 +48,7 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         chatIntent.putExtra("regId",databaseHelper.getUsers().get(position).getRegistrationId());
         chatIntent.putExtra("titleName",databaseHelper.getUsers().get(position).getUserName());
         chatIntent.putExtra("userId",databaseHelper.getUsers().get(position).getUserId());
+        //put owner username to value
         chatIntent.putExtra("name","Harold");
         startActivity(chatIntent);
     }

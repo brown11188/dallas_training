@@ -65,6 +65,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
+        //put owner user_id to variable "1"
         List<Message> messages = databaseHelper.getMessges(1,databaseHelper.getUser(chatTitle).getUserId() );
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
@@ -114,8 +115,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 MessageSenderContent mgsContent = createMegContent(registId, chatTitle, message);
                 mgsSender.sendPost(mgsContent);
                 userId = databaseHelper.getUser(chatTitle).getUserId();
+                //put owner user_id to variable "1"
                 databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, 1);
                 txt_chat.setText("");
+                //put owner user_id to variable "1"
                 displayMessage(chatTitle, message, 1);
                 break;
         }
