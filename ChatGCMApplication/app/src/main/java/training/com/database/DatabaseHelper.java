@@ -119,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         if(cursor.moveToFirst()){
             do{
                 users = new Users();
-                users.setUserId(cursor.getColumnIndex(USER_ID));
+                users.setUserId(cursor.getInt(0));
                 users.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
                 users.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
                 userList.add(users);
