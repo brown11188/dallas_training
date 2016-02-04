@@ -27,9 +27,6 @@ import training.com.common.AppConfig;
  */
 public class MessageService extends IntentService {
 
-    private List<String> message_array = new ArrayList<>();
-
-
     public MessageService() {
         super("MessageService");
     }
@@ -38,26 +35,11 @@ public class MessageService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Bundle bundle = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-
-
-
-        String messageType = gcm.getMessageType(intent);
         if (!bundle.isEmpty()&& AppConfig.REG_ID != null) {
-//            GCM Server return message_type = null
-//            if(GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)){
-//                Log.e("Error", "Send message error");
-//            } else if( GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-//                Log.e("Delete", "Some messages have been discarded");
-//            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-//                sendDataToActivity(bundle.getString("from"),bundle.getString("message") );
-//                Log.i("Success", "Receive message successful");
-//            }
             sendNotification(bundle.getString("title"), bundle.getString("message"));
-
         }
         MessageReceiver.completeWakefulIntent(intent);
     }
-
 
     private void sendNotification(String from, String message) {
         Bundle bundle = new Bundle();

@@ -140,12 +140,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID +
                 " FROM " + TABLE_USERS + " WHERE " + USERNAME + " ='" + userName.trim() + "'";
         Cursor cursor = database.rawQuery(selectUser, null);
-        if (cursor != null) cursor.moveToFirst();
         Users user = new Users();
-        user.setUserId(cursor.getInt(0));
-        user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
-        user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
-        cursor.close();
+        if (cursor != null) {
+            cursor.moveToFirst();
+
+            user.setUserId(cursor.getInt(0));
+            user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
+            user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
+            cursor.close();
+
+        }
         return user;
     }
 
@@ -153,14 +157,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     public Users getUserByUserId(int user_id) {
         SQLiteDatabase database = this.getReadableDatabase();
         String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID +
-                " FROM " + TABLE_USERS + " WHERE " + USER_ID + " =" + user_id ;
+                " FROM " + TABLE_USERS + " WHERE " + USER_ID + " =" + user_id;
         Cursor cursor = database.rawQuery(selectUser, null);
-        if (cursor != null) cursor.moveToFirst();
         Users user = new Users();
-        user.setUserId(cursor.getInt(0));
-        user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
-        user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
-        cursor.close();
+        if (cursor != null) {
+            cursor.moveToFirst();
+            user.setUserId(cursor.getInt(0));
+            user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
+            user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
+            cursor.close();
+        }
         return user;
     }
 
@@ -222,15 +228,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         }
         return message;
     }
+
     @Override
-    public Users checkLogin(String userName,String password){
-        String selectUser = "SELECT "+ USER_ID + "," + USERNAME + "," + REGISTRATION_ID +" FROM "+TABLE_USERS+
-                " WHERE "+ USERNAME +"='"+userName +"' AND "
-                +PASSWORD+"='"+password+"'";
+    public Users checkLogin(String userName, String password) {
+        String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID + " FROM " + TABLE_USERS +
+                " WHERE " + USERNAME + "='" + userName + "' AND "
+                + PASSWORD + "='" + password + "'";
         SQLiteDatabase database = this.getReadableDatabase();
-        Cursor cursor = database.rawQuery(selectUser,null);
+        Cursor cursor = database.rawQuery(selectUser, null);
         Users user = new Users();
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             user.setUserId(cursor.getInt(0));
             user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
             user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
