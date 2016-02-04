@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import training.com.common.AppConfig;
 import training.com.common.TimeUtil;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
@@ -48,14 +49,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Log.i("appCf2", String.valueOf(AppConfig.USER_ID));
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
+
         timeUtil = new TimeUtil();
+
         forceScrollViewToBottom();
+
         databaseHelper = new DatabaseHelper(getApplicationContext());
+
         btn_send.setOnClickListener(this);
+
         bundle = getIntent().getExtras();
         chatTitle = bundle.getString("titleName");
         if (getIntent().getBundleExtra("INFO") != null) {
@@ -66,7 +73,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         registId = bundle.getString("regId");
         //put owner user_id to variable "1"
-        List<Message> messages = databaseHelper.getMessges(1,databaseHelper.getUser(chatTitle).getUserId() );
+        List<Message> messages = databaseHelper.getMessges(AppConfig.USER_ID,databaseHelper.getUser(chatTitle).getUserId() );
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
             for (Message element : messages) {
@@ -112,17 +119,18 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 String message = txt_chat.getText().toString();
                 databaseHelper = new DatabaseHelper(getApplicationContext());
                 mgsSender = new MessageSender();
-                MessageSenderContent mgsContent = createMegContent(registId, chatTitle, message);
+                MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME, message);
                 mgsSender.sendPost(mgsContent);
                 userId = databaseHelper.getUser(chatTitle).getUserId();
                 //put owner user_id to variable "1"
-                databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, 1);
+                databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, AppConfig.USER_ID);
                 txt_chat.setText("");
                 //put owner user_id to variable "1"
-                displayMessage(chatTitle, message, 1);
+                displayMessage(AppConfig.USER_NAME, message, AppConfig.USER_ID);
                 break;
         }
     }
+
 
     private void displayMessage(String username, String message, int user_id) {
         TableRow tableRow = new TableRow(getApplicationContext());
@@ -130,7 +138,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         TextView textview = new TextView(getApplicationContext());
         textview.setTextSize(20);
         textview.setMaxLines(2);
-        if(user_id == 1) {
+        if(user_id == AppConfig.USER_ID) {
             textview.setTextColor(Color.parseColor("#0066ff"));
         } else {
             textview.setTextColor(Color.parseColor("#000000"));
@@ -148,4 +156,5 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
 }

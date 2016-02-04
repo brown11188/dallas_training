@@ -20,6 +20,7 @@ import java.util.List;
 
 import training.com.chatgcmapplication.ChatActivity;
 import training.com.chatgcmapplication.R;
+import training.com.common.AppConfig;
 
 /**
  * Created by enclaveit on 1/27/16.
@@ -41,7 +42,7 @@ public class MessageService extends IntentService {
 
 
         String messageType = gcm.getMessageType(intent);
-        if (!bundle.isEmpty()) {
+        if (!bundle.isEmpty()&& AppConfig.REG_ID != null) {
 //            GCM Server return message_type = null
 //            if(GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)){
 //                Log.e("Error", "Send message error");
@@ -67,7 +68,7 @@ public class MessageService extends IntentService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setContentTitle("New message")
+                .setContentTitle(from)
                 .setSound(defaultSoundUri)
                 .setContentText(message)
                 .setSmallIcon(R.drawable.ic_notification)

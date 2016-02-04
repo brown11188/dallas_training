@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import training.com.chatgcmapplication.R;
+import training.com.common.AppConfig;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
 import training.com.model.Users;
@@ -55,7 +56,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
         tv_userName.setText(listContact.get(position).getUserName());
         int userId = listContact.get(position).getUserId();
-        Message message = databaseHelper.getLastMessage(userId, 1);
+        Message message = databaseHelper.getLastMessage(userId, AppConfig.USER_ID);
         tv_lasMsg.setText(message.getMessage());
 
         return convertView;

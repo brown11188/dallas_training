@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import training.com.adapter.ContactListFragmentAdapter;
 import training.com.chatgcmapplication.ChatActivity;
 import training.com.chatgcmapplication.R;
+import training.com.common.AppConfig;
 import training.com.database.DatabaseHelper;
 import training.com.model.Users;
 
@@ -49,7 +51,8 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         chatIntent.putExtra("titleName",databaseHelper.getUsers().get(position).getUserName());
         chatIntent.putExtra("userId",databaseHelper.getUsers().get(position).getUserId());
         //put owner username to value
-        chatIntent.putExtra("name","Harold");
+        chatIntent.putExtra("name", AppConfig.USER_NAME);
+        Log.i("USERNAME",AppConfig.USER_NAME);
         startActivity(chatIntent);
     }
 }

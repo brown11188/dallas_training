@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import training.com.common.AppConfig;
 import training.com.common.TimeUtil;
 import training.com.database.DatabaseHelper;
 import training.com.model.Users;
@@ -41,7 +42,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         databaseHelper =  new DatabaseHelper(context);
         Users user = databaseHelper.getUser(bundle.getString("title"));
         //put owner user_id to variable "1"
-        databaseHelper.addMessage(message, timeUtil.getCurrentTime(), 1, user.getUserId());
+        databaseHelper.addMessage(message, timeUtil.getCurrentTime(), AppConfig.USER_ID, user.getUserId());
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);

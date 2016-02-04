@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 import training.com.common.AppConfig;
@@ -18,25 +19,33 @@ import training.com.database.DatabaseHelper;
 import training.com.model.Users;
 import training.com.services.RegistrationIdManager;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btn_register;
     private Button btn_contact;
-    private Button btn_logout;
+    // private Button btn_logout;
+    //private Button btn_logout
     private DatabaseHelper databaseHelper;
     private Users user, user1;
-    public SharedPreferences preferences;
+    private SharedPreferences preferences;
+    private Intent intent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
-        int id = preferences.getInt("userId",0);
-        Log.i("IDTEST", String.valueOf(id));
-        if(id==0){
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
+        int id = preferences.getInt("userId", 0);
+        AppConfig.USER_ID = id;
+        AppConfig.USER_NAME = preferences.getString("userName", null);
+        AppConfig.REG_ID = preferences.getString("registration_id", null);
+        if (id == 0) {
+            intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        } else {
+            intent = new Intent(MainActivity.this, HomePageActivity.class);
             startActivity(intent);
         }
 
@@ -48,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btn_register = (Button) findViewById(R.id.btn_register);
         btn_contact = (Button) findViewById(R.id.btn_contact);
-        btn_logout = (Button) findViewById(R.id.btn_logout);
+        // btn_logout = (Button) toolbar.findViewById(R.id.btn_out);
         btn_register.setOnClickListener(this);
         btn_contact.setOnClickListener(this);
 
@@ -57,8 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //
 //        databaseHelper.addUser(user);
 //        databaseHelper.addUser(user1);
-        btn_logout.setOnClickListener(this);
-
+        //btn_logout.setOnClickListener(this);
 
 
     }
@@ -103,13 +111,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent(MainActivity.this, HomePageActivity.class);
                 MainActivity.this.startActivity(intent);
                 break;
-            case R.id.btn_logout:
-                SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.clear();
-                editor.commit();
-                intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
         }
     }
 
@@ -134,4 +135,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         return super.onOptionsItemSelected(item);
     }
+
 }

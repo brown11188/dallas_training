@@ -32,6 +32,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onBackPressed() {
+
     }
 
     private void saveUser(Users user) {
@@ -51,7 +52,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
         } else {
             saveUser(user);
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, HomePageActivity.class);
             startActivity(intent);
         }
     }
