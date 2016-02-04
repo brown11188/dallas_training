@@ -48,8 +48,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     private static final String EXPIRES_TIME = "expires_time";
     private static final String SENDER_ID = "sender_id";
 
-    private static final String[] USER_INFO = {USER_ID, USERNAME, REGISTRATION_ID};
-
     private static final String CREATE_TABLE_USERS = "CREATE table " + TABLE_USERS + "("
             + USER_ID + " integer PRIMARY KEY AUTOINCREMENT,"
             + USERNAME + " varchar(50) not null,"
@@ -132,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 userList.add(users);
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         return userList;
     }
 
@@ -147,6 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         user.setUserId(cursor.getInt(0));
         user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
         user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
+        cursor.close();
         return user;
     }
 
@@ -161,6 +160,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         user.setUserId(cursor.getInt(0));
         user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
         user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
+        cursor.close();
         return user;
     }
 
@@ -191,7 +191,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 }
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         return messages;
     }
 
@@ -216,6 +216,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 message.setUserId(Integer.parseInt(cursor.getString(3)));
                 database.close();
             }
+            cursor.close();
         } catch (ParseException e) {
             Log.e("ParseException: ", e.getMessage());
         }
@@ -233,8 +234,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             user.setUserId(cursor.getInt(0));
             user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
             user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
-            Log.i("ULIST", String.valueOf(cursor.getInt(0)));
         }
+        cursor.close();
         return user;
     }
 

@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
         int id = preferences.getInt("userId", 0);
         AppConfig.USER_ID = id;

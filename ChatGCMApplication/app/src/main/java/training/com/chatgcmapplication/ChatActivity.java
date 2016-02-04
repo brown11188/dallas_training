@@ -48,21 +48,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_chat);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Log.i("appCf2", String.valueOf(AppConfig.USER_ID));
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         tab_content = (TableLayout) findViewById(R.id.tab_content);
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
-
         timeUtil = new TimeUtil();
-
         forceScrollViewToBottom();
-
         databaseHelper = new DatabaseHelper(getApplicationContext());
-
         btn_send.setOnClickListener(this);
-
         bundle = getIntent().getExtras();
         chatTitle = bundle.getString("titleName");
         if (getIntent().getBundleExtra("INFO") != null) {
@@ -72,7 +68,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
-        //put owner user_id to variable "1"
         List<Message> messages = databaseHelper.getMessges(AppConfig.USER_ID,databaseHelper.getUser(chatTitle).getUserId() );
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) {
@@ -122,10 +117,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME, message);
                 mgsSender.sendPost(mgsContent);
                 userId = databaseHelper.getUser(chatTitle).getUserId();
-                //put owner user_id to variable "1"
                 databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, AppConfig.USER_ID);
                 txt_chat.setText("");
-                //put owner user_id to variable "1"
                 displayMessage(AppConfig.USER_NAME, message, AppConfig.USER_ID);
                 break;
         }

@@ -36,7 +36,6 @@ public class HomePageActivity extends AppCompatActivity {
         }
 
 
-        Log.i("appCf", String.valueOf(AppConfig.USER_ID));
         tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText(TAB_RECENT));
         tabLayout.addTab(tabLayout.newTab().setText(TAB_CONTACTS));
