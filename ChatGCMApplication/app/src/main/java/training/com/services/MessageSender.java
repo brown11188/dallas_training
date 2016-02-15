@@ -1,6 +1,5 @@
 package training.com.services;
 
-import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.util.Log;
 

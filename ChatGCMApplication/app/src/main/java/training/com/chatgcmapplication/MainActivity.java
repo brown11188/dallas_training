@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        databaseHelper = new DatabaseHelper(getApplicationContext());
+//        databaseHelper = new DatabaseHelper(getApplicationContext());
 
         btn_register = (Button) findViewById(R.id.btn_register);
         btn_contact = (Button) findViewById(R.id.btn_contact);
@@ -70,23 +70,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private Users setDefaultUserValue() {
-        Users users = new Users();
-        users.setUserId(1);
-        users.setUserName("Harold");
-        users.setPassword("123123");
-        users.setRegistrationId(AppConfig.HAROLD_KEY);
-        return users;
-    }
-
-    private Users setDefaultUserValue1() {
-        Users users = new Users();
-        users.setUserId(2);
-        users.setUserName("Hawk");
-        users.setPassword("123123");
-        users.setRegistrationId(AppConfig.HAWK_KEY);
-        return users;
-    }
+//    private Users setDefaultUserValue() {
+//        Users users = new Users();
+//        users.setUserId(1);
+//        users.setUserName("Harold");
+//        users.setPassword("123123");
+//        users.setRegistrationId(AppConfig.HAROLD_KEY);
+//        return users;
+//    }
+//
+//    private Users setDefaultUserValue1() {
+//        Users users = new Users();
+//        users.setUserId(2);
+//        users.setUserName("Hawk");
+//        users.setPassword("123123");
+//        users.setRegistrationId(AppConfig.HAWK_KEY);
+//        return users;
+//    }
 
     @Override
     public void onClick(View v) {

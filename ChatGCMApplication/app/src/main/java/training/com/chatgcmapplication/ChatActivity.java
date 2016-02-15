@@ -57,7 +57,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         scrollView = (ScrollView) findViewById(R.id.scroll_chat);
         timeUtil = new TimeUtil();
         forceScrollViewToBottom();
-        databaseHelper = new DatabaseHelper(getApplicationContext());
+        databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         btn_send.setOnClickListener(this);
         bundle = getIntent().getExtras();
         chatTitle = bundle.getString("titleName");
@@ -112,7 +112,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btn_send:
                 String message = txt_chat.getText().toString();
-                databaseHelper = new DatabaseHelper(getApplicationContext());
+                databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
                 mgsSender = new MessageSender();
                 MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME, message);
                 mgsSender.sendPost(mgsContent);

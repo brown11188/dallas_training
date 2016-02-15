@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
@@ -28,7 +29,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
     public ContactListFragmentAdapter(Context context, ArrayList<Users> listContact) {
         this.context = context;
         this.listContact = listContact;
-        databaseHelper = new DatabaseHelper(context);
+        databaseHelper = DatabaseHelper.getInstance(context);
     }
 
     @Override
@@ -48,17 +49,42 @@ public class ContactListFragmentAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView==null){
-            LayoutInflater inflater = (LayoutInflater)context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.row_contact,null);
+        ViewHolder viewHolder;
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.row_contact, parent, false);
+            viewHolder = new ViewHolder();
+            viewHolder.tv_userName = (TextView) convertView.findViewById(R.id.tv_userName);
+            viewHolder.tv_lastMessage = (TextView) convertView.findViewById(R.id.tv_lastMsg);
+            convertView.setTag(viewHolder);
+
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
         }
-        TextView tv_userName = (TextView)convertView.findViewById(R.id.tv_userName);
-        TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
-        tv_userName.setText(listContact.get(position).getUserName());
-        int userId = listContact.get(position).getUserId();
-        Message message = databaseHelper.getLastMessage(userId, AppConfig.USER_ID);
-        tv_lasMsg.setText(message.getMessage());
+        Users objectItem = listContact.get(position);
+        Message message = databaseHelper.getLastMessage(objectItem.getUserId(), AppConfig.USER_ID);
+        viewHolder.tv_userName.setText(objectItem.getUserName());
+        viewHolder.tv_lastMessage.setText(message.getMessage());
+
+
+//        if(convertView==null){
+//            LayoutInflater inflater = (LayoutInflater)context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+//            convertView = inflater.inflate(R.layout.row_contact,null);
+//        }
+//        TextView tv_userName = (TextView)convertView.findViewById(R.id.tv_userName);
+//        TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
+//        tv_userName.setText(listContact.get(position).getUserName());
+//        int userId = listContact.get(position).getUserId();
+//        Message message = databaseHelper.getLastMessage(userId, AppConfig.USER_ID);
+//        tv_lasMsg.setText(message.getMessage());
 
         return convertView;
     }
+
+    static class ViewHolder {
+        TextView tv_userName;
+        TextView tv_lastMessage;
+    }
 }
+
+

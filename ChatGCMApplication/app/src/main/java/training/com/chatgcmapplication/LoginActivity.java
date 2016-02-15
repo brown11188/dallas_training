@@ -45,8 +45,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void doLogin(String userName, String password) {
-        DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
-        Users user = new Users();
+        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+        Users user = Users.getInstance();
         user = databaseHelper.checkLogin(userName, password);
         if (user.getUserId()==0) {
             Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();

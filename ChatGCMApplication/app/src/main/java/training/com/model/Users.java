@@ -1,5 +1,7 @@
 package training.com.model;
 
+import android.util.Log;
+
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -7,6 +9,9 @@ import java.util.HashSet;
  * Created by enclaveit on 2/1/16.
  */
 public class Users {
+
+    private static Users mInstance = null;
+
     private int userId;
     private String userName;
     private String password;
@@ -17,12 +22,11 @@ public class Users {
     public Users() {
     }
 
-    public Users(Collection<Message> messages, String registrationId, String password, String userName, int userId) {
-        this.messages = messages;
-        this.registrationId = registrationId;
-        this.password = password;
-        this.userName = userName;
-        this.userId = userId;
+    public static Users getInstance() {
+        if (mInstance == null) {
+            mInstance = new Users();
+        }
+        return mInstance;
     }
 
     public int getUserId() {

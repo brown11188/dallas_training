@@ -26,23 +26,19 @@ import training.com.model.Users;
  */
 public class MessageReceiver extends WakefulBroadcastReceiver {
 
-    private DatabaseHelper databaseHelper;
-    private TimeUtil timeUtil;
-
     @Override
     public void onReceive(Context context, Intent intent) {
 
         Bundle bundle = intent.getExtras();
-        timeUtil = new TimeUtil();
+        TimeUtil timeUtil = new TimeUtil();
         Intent br_intent = new Intent("Msg");
         br_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         String message = bundle.getString("message");
         br_intent.putExtra("message", message);
         br_intent.putExtra("name", bundle.getString("title"));
-        databaseHelper =  new DatabaseHelper(context);
+        DatabaseHelper databaseHelper =  DatabaseHelper.getInstance(context);
         Users user = databaseHelper.getUser(bundle.getString("title"));
         databaseHelper.addMessage(message, timeUtil.getCurrentTime(), AppConfig.USER_ID, user.getUserId());
-
         LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
         Intent gcmIntent = new Intent(context, MessageService.class);
         gcmIntent.putExtras(intent.getExtras());

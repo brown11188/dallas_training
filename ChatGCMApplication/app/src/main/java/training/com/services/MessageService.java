@@ -34,7 +34,6 @@ public class MessageService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Bundle bundle = intent.getExtras();
-        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         if (!bundle.isEmpty()&& AppConfig.REG_ID != null) {
             sendNotification(bundle.getString("title"), bundle.getString("message"));
         }

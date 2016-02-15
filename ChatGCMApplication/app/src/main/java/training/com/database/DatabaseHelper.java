@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import training.com.dao.DatabaseDAO;
 import training.com.model.Message;
@@ -25,6 +26,8 @@ import training.com.model.Users;
  * Created by enclaveit on 2/1/16.
  */
 public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
+
+    private static DatabaseHelper mInstance = null;
 
     private SQLiteDatabase database;
     private static final String TAG = "Database Helper";
@@ -62,9 +65,16 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             + USER_ID + " integer, foreign key (" + USER_ID + ") references " + TABLE_USERS + "(" + USER_ID + "))";
     private static final String SELECT_ALL_USER = "SELECT * FROM " + TABLE_USERS;
 
-    public DatabaseHelper(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         database = getWritableDatabase();
+    }
+
+    public static DatabaseHelper getInstance(Context context){
+        if(mInstance==null){
+            mInstance = new DatabaseHelper(context);
+        }
+        return mInstance;
     }
 
 
@@ -113,17 +123,12 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     @Override
     public ArrayList<Users> getUsers() {
         ArrayList<Users> userList = new ArrayList<Users>();
-
         SQLiteDatabase database = this.getWritableDatabase();
-
-
         Cursor cursor = database.rawQuery(SELECT_ALL_USER, null);
-
-        Users users = null;
 
         if (cursor.moveToFirst()) {
             do {
-                users = new Users();
+                Users users = new Users();
                 users.setUserId(cursor.getInt(0));
                 users.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
                 users.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
@@ -140,15 +145,13 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID +
                 " FROM " + TABLE_USERS + " WHERE " + USERNAME + " ='" + userName.trim() + "'";
         Cursor cursor = database.rawQuery(selectUser, null);
-        Users user = new Users();
+        Users user = Users.getInstance();
         if (cursor != null) {
             cursor.moveToFirst();
-
             user.setUserId(cursor.getInt(0));
             user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
             user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
             cursor.close();
-
         }
         return user;
     }
@@ -159,7 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID +
                 " FROM " + TABLE_USERS + " WHERE " + USER_ID + " =" + user_id;
         Cursor cursor = database.rawQuery(selectUser, null);
-        Users user = new Users();
+        Users user = Users.getInstance();
         if (cursor != null) {
             cursor.moveToFirst();
             user.setUserId(cursor.getInt(0));
@@ -179,7 +182,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 + " AND " + SENDER_ID + " = " + sender_id + ") " +
                 "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ")";
         Cursor cursor = database.rawQuery(selectQuery, null);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.ENGLISH);
         if (cursor.moveToFirst()) {
             do {
                 try {
@@ -191,12 +194,12 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                     message.setSender_id(cursor.getInt(3));
                     message.setUserId(Integer.parseInt(cursor.getString(4)));
                     messages.add(message);
-                    database.close();
                 } catch (ParseException e) {
                     Log.e("ParseException: ", e.getMessage());
                 }
             } while (cursor.moveToNext());
         }
+        database.close();
         cursor.close();
         return messages;
     }
@@ -204,28 +207,29 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     @Override
     public Message getLastMessage(int user_id, int sender_id) {
         SQLiteDatabase database = this.getReadableDatabase();
-        Message message = new Message();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        Message message = Message.getInstance();
         try {
-
-            String selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
+            String new_selectQuery = "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
                     + " AND " + SENDER_ID + " = " + sender_id + ") " +
-                    "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ")";
-
-            Cursor cursor = database.rawQuery(selectQuery, null);
-            if (cursor.moveToLast()) {
+                    "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ") ORDER BY " +
+                    MESSAGE_ID + " DESC LIMIT 1 ";
+            Cursor cursor = database.rawQuery(new_selectQuery, null);
+            if (cursor.moveToFirst()) {
                 message.setMessage_id(cursor.getInt(0));
                 message.setMessage(cursor.getString(1));
                 Date date = formatter.parse(cursor.getString(2));
                 message.setExpiresTime(date);
                 message.setUserId(Integer.parseInt(cursor.getString(3)));
-                database.close();
+
             }
+            database.close();
             cursor.close();
         } catch (ParseException e) {
             Log.e("ParseException: ", e.getMessage());
         }
+
         return message;
     }
 
@@ -236,7 +240,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 + PASSWORD + "='" + password + "'";
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = database.rawQuery(selectUser, null);
-        Users user = new Users();
+        Users user = Users.getInstance();
         if (cursor.moveToFirst()) {
             user.setUserId(cursor.getInt(0));
             user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));

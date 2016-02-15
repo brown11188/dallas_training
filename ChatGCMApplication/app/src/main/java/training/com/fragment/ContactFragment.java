@@ -32,7 +32,7 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        databaseHelper = new DatabaseHelper(getActivity().getApplicationContext());
+        databaseHelper = DatabaseHelper.getInstance(getActivity().getApplicationContext());
 
         View rootView = inflater.inflate(R.layout.list_contact, container, false);
 

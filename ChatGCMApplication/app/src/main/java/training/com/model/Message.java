@@ -1,11 +1,14 @@
 package training.com.model;
 
+import android.util.Log;
+
 import java.util.Date;
 
 /**
  * Created by enclaveit on 2/1/16.
  */
 public class Message {
+    private static Message mInstance = null;
 
     private int message_id;
     private int userId;
@@ -16,12 +19,11 @@ public class Message {
     public Message() {
     }
 
-    public Message(int message_id, int userId, String message, Date expiresTime, int sender_id) {
-        this.message_id = message_id;
-        this.userId = userId;
-        this.message = message;
-        this.expiresTime = expiresTime;
-        this.sender_id = sender_id;
+    public static Message getInstance() {
+        if (mInstance == null) {
+            mInstance = new Message();
+        }
+        return mInstance;
     }
 
     public int getMessage_id() {
