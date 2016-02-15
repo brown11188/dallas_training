@@ -19,10 +19,8 @@ import training.com.common.AppConfig;
  */
 public class MessageSender {
     public void sendPost(MessageSenderContent content) {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        HttpURLConnection connection = null;
+
+        HttpURLConnection connection;
         try {
             URL gcmAPI = new URL(AppConfig.GCM_API);
             connection = (HttpURLConnection) gcmAPI.openConnection();

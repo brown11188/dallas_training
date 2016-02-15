@@ -83,15 +83,32 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         db.execSQL(CREATE_TABLE_USERS);
         db.execSQL(CREATE_TABLE_CHAT_CONTENT);
         Log.i("DATABASE", "Create successfully");
-
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
-        Log.i("DATABASE", "Update successfully");
+        int upgradeTo = oldVersion + 1;
+            while (upgradeTo <= newVersion){
+                switch (upgradeTo){
+                    case 1:
+                        Log.i("DATABASE", "Updated to version 1");
+                    case 2:
+                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+                        Log.i("DATABASE", "Updated to version 2");
+                    case 3:
+                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
+                        Log.i("DATABASE", "Updated to version 3");
+                    case 4:
+                        Log.i("DATABASE", "Updated to version 4 , Just for test ");
+                        break;
+                }
+                upgradeTo++;
+            }
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+//        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
         onCreate(db);
+        Log.i("DATABASE", "Update successfully");
+
     }
 
 
@@ -144,6 +161,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         SQLiteDatabase database = this.getReadableDatabase();
         String selectUser = "SELECT " + USER_ID + "," + USERNAME + "," + REGISTRATION_ID +
                 " FROM " + TABLE_USERS + " WHERE " + USERNAME + " ='" + userName.trim() + "'";
+
         Cursor cursor = database.rawQuery(selectUser, null);
         Users user = Users.getInstance();
         if (cursor != null) {

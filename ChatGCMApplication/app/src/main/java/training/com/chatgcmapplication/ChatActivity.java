@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -30,7 +31,7 @@ import training.com.services.MessageSenderContent;
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
     private Button btn_send;
-    private EditText txt_chat;
+    private static EditText txt_chat;
     private TableLayout tab_content;
     private String registId;
     private Bundle bundle;
@@ -92,15 +93,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         finish();
     }
 
+
+
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onNotice);
         super.onDestroy();
-
     }
 
 
-    private static MessageSenderContent createMegContent(String regId, String title, String message) {
+    private static MessageSenderContent createMegContent(String regId, String title) {
+        String message = txt_chat.getText().toString();
         MessageSenderContent mgsContent = new MessageSenderContent();
         mgsContent.addRegId(regId);
         mgsContent.createData(title, message);
@@ -114,8 +117,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 String message = txt_chat.getText().toString();
                 databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
                 mgsSender = new MessageSender();
-                MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME, message);
-                mgsSender.sendPost(mgsContent);
+
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
+                        mgsSender.sendPost(mgsContent);
+                        return null;
+                    }
+
+                }.execute();
+
                 userId = databaseHelper.getUser(chatTitle).getUserId();
                 databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, AppConfig.USER_ID);
                 txt_chat.setText("");
