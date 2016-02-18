@@ -55,24 +55,26 @@
 
         <receiver
             android:name="training.com.services.MessageReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="training.com.chatgcmapplication" />
             </intent-filter>
         </receiver>
+
         <service android:name="training.com.services.MessageService" />
 
         <activity
             android:name=".ChatActivity"
-            android:launchMode="singleTask"
             android:label="@string/title_activity_chat"
-            android:theme="@style/MyMaterialTheme"
+            android:launchMode="singleTask"
             android:parentActivityName=".HomePageActivity"
-            android:windowSoftInputMode="stateHidden"/>
-
+            android:theme="@style/MyMaterialTheme"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".HomePageActivity" />
-        <activity android:name=".LoginActivity"/>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".RegisterActivity"></activity>
     </application>
 
 </manifest>

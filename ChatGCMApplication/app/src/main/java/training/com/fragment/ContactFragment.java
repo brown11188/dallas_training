@@ -28,6 +28,7 @@ import training.com.model.Users;
 public class ContactFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private DatabaseHelper databaseHelper;
+    private ContactListFragmentAdapter contactsAdapter;
 
     @Nullable
     @Override
@@ -35,10 +36,10 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         databaseHelper = DatabaseHelper.getInstance(getActivity().getApplicationContext());
 
         View rootView = inflater.inflate(R.layout.list_contact, container, false);
-
         ArrayList<Users> users= databaseHelper.getUsers();
         ListView list_contact =(ListView)rootView.findViewById(R.id.list_contact);
-        list_contact.setAdapter(new ContactListFragmentAdapter(getActivity(), users));
+        contactsAdapter = new ContactListFragmentAdapter(getActivity(), users);
+        list_contact.setAdapter(contactsAdapter);
         list_contact.setOnItemClickListener(this);
         return rootView;
     }
@@ -52,5 +53,11 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         chatIntent.putExtra("userId",databaseHelper.getUsers().get(position).getUserId());
         chatIntent.putExtra("name", AppConfig.USER_NAME);
         startActivity(chatIntent);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        contactsAdapter.notifyDataSetChanged();
     }
 }
