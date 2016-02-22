@@ -24,12 +24,11 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     private Context context;
     private ArrayList<Message> messages;
     private DatabaseHelper databaseHelper;
-    private boolean check = false;
+    private Message message;
 
     @Override
     public void add(Message object) {
         messages.add(object);
-        notifyDataSetChanged();
         super.add(object);
     }
 
@@ -41,16 +40,23 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     public int getCount() {
-        return this.messages.size();
+        return messages.size();
     }
 
     public Message getItem(int index) {
-        return this.messages.get(index);
+        return messages.get(index);
     }
+
+    public long getItemId(int index) {
+        return index;
+    }
+
+
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         MessageViewHolder messageViewHolder;
+
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.chat_item, parent, false);
@@ -61,45 +67,25 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             messageViewHolder = (MessageViewHolder) convertView.getTag();
         }
-        if (check) {
-            Log.i("check true", messages.size() + "");
-            Message message = messages.get(position - 1);
-            String username = databaseHelper.getUserByUserId(message.getUserId()).getUserName();
-            if (message.getUserId() == AppConfig.USER_ID) {
-                messageViewHolder.tv_message.setTextColor(Color.parseColor("#0066ff"));
-                messageViewHolder.tv_userName.setTextColor(Color.parseColor("#0066ff"));
-            } else {
-                messageViewHolder.tv_message.setTextColor(Color.parseColor("#000000"));
-                messageViewHolder.tv_userName.setTextColor(Color.parseColor("#000000"));
-            }
-            messageViewHolder.tv_userName.setText(username);
-            messageViewHolder.tv_message.setText(message.getMessage());
+        message = messages.get(position);
+        String username = databaseHelper.getUserByUserId(message.getUserId()).getUserName();
+        if (message.getUserId() == AppConfig.USER_ID) {
+            messageViewHolder.tv_message.setTextColor(Color.parseColor("#0066ff"));
+            messageViewHolder.tv_userName.setTextColor(Color.parseColor("#0066ff"));
         } else {
-            Log.i("check true", "HIOHO");
-            Message message = messages.get(position);
-            String username = databaseHelper.getUserByUserId(message.getUserId()).getUserName();
-            if (message.getUserId() == AppConfig.USER_ID) {
-                messageViewHolder.tv_message.setTextColor(Color.parseColor("#0066ff"));
-                messageViewHolder.tv_userName.setTextColor(Color.parseColor("#0066ff"));
-            } else {
-                messageViewHolder.tv_message.setTextColor(Color.parseColor("#000000"));
-                messageViewHolder.tv_userName.setTextColor(Color.parseColor("#000000"));
-            }
-            messageViewHolder.tv_userName.setText(username);
-            messageViewHolder.tv_message.setText(message.getMessage());
-
+            messageViewHolder.tv_message.setTextColor(Color.parseColor("#000000"));
+            messageViewHolder.tv_userName.setTextColor(Color.parseColor("#000000"));
         }
+        messageViewHolder.tv_userName.setText(username);
+        messageViewHolder.tv_message.setText(message.getMessage());
+
         return convertView;
     }
 
     static class MessageViewHolder {
-        TextView tv_userName;
         TextView tv_message;
+        TextView tv_userName;
     }
 
-    @Override
-    public void notifyDataSetChanged() {
-        super.notifyDataSetChanged();
-        check = true;
-    }
+
 }
