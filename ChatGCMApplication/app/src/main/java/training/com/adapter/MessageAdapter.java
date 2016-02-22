@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
@@ -28,6 +29,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     public void add(Message object) {
         messages.add(object);
         super.add(object);
+    }
+
+    public void insertToTheFirst(List<Message> object){
+        messages.addAll(0, object);
     }
 
     public MessageAdapter(Context context, int textViewResouceId, ArrayList<Message> messages) {

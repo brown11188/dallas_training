@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -30,7 +31,7 @@ import training.com.model.Message;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener,  SwipeRefreshLayout.OnRefreshListener {
     private Button btn_send;
     private static EditText txt_chat;
     private String registId;
@@ -42,7 +43,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private TimeUtil timeUtil;
     private MessageAdapter messageAdapter;
     private ListView lv_message;
-
+    private int offsetNumber = 10;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +57,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeRefreshLayout.setOnRefreshListener(this);
         lv_message = (ListView) findViewById(R.id.listMessage);
-        lv_message.setOnItemClickListener(this);
         timeUtil = new TimeUtil();
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         btn_send.setOnClickListener(this);
@@ -151,9 +154,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TextView tv_info = (TextView) findViewById(R.id.txtInfo);
-        tv_info.setVisibility(View.GONE);
-        tv_info.setVisibility(View.VISIBLE);
+    public void onRefresh() {
+        List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), offsetNumber);
+        messageAdapter.insertToTheFirst(messages);
+        messageAdapter.notifyDataSetChanged();
+        offsetNumber += 5;
+        swipeRefreshLayout.setRefreshing(false);
     }
+
 }

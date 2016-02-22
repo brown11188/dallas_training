@@ -277,7 +277,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         String selectQuery = "SELECT * FROM ( " + "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
                 + " AND " + SENDER_ID + " = " + sender_id + ") "
                 + "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ") ORDER BY  "
-                + MESSAGE_ID + " DESC LIMIT 20 OFFSET " + offsetNumber +  " ) " + " AS TEMP ORDER BY TEMP." + MESSAGE_ID + " ASC ";
+                + MESSAGE_ID + " DESC LIMIT 10 OFFSET " + offsetNumber +  " ) " + " AS TEMP ORDER BY TEMP." + MESSAGE_ID + " ASC ";
         Cursor cursor = database.rawQuery(selectQuery, null);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         if (cursor.moveToFirst()) {
