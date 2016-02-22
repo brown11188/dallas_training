@@ -93,7 +93,7 @@ public class HomePageActivity extends AppCompatActivity {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
         intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }

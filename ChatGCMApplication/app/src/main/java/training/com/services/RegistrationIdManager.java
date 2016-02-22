@@ -60,7 +60,7 @@ public class RegistrationIdManager {
                 } catch (IOException e) {
                     handler.onFailure("Error :" + e.getMessage());
                 }
-                return null;
+                return regId;
             }
 
             @Override
