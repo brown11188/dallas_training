@@ -9,10 +9,14 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -26,7 +30,7 @@ import training.com.model.Message;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
     private Button btn_send;
     private static EditText txt_chat;
     private String registId;
@@ -52,6 +56,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         lv_message = (ListView) findViewById(R.id.listMessage);
+        lv_message.setOnItemClickListener(this);
         timeUtil = new TimeUtil();
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         btn_send.setOnClickListener(this);
@@ -65,7 +70,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         registId = bundle.getString("regId");
         userId = databaseHelper.getUser(chatTitle).getUserId();
-        List<Message> messages = databaseHelper.getMessges(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId());
+        List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), 0);
         messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, (ArrayList<Message>) messages);
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
@@ -144,4 +149,11 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        TextView tv_info = (TextView) findViewById(R.id.txtInfo);
+        tv_info.setVisibility(View.GONE);
+        tv_info.setVisibility(View.VISIBLE);
+    }
 }

@@ -40,10 +40,13 @@
                     android:id="@+id/listMessage"
                     android:layout_width="match_parent"
                     android:layout_height="380dp"
-                    android:background="@null"
+                    android:layout_alignParentLeft="false"
+                    android:layout_alignParentTop="false"
+
+                    android:listSelector="@android:color/transparent"
+                    android:transcriptMode="alwaysScroll"
                     android:divider="@null"
-                    android:stackFromBottom="true"
-                    android:transcriptMode="alwaysScroll" />
+                    android:stackFromBottom="true"/>
             </LinearLayout>
 
 

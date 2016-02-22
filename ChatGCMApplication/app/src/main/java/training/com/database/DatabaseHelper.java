@@ -70,8 +70,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         database = getWritableDatabase();
     }
 
-    public static DatabaseHelper getInstance(Context context){
-        if(mInstance==null){
+    public static DatabaseHelper getInstance(Context context) {
+        if (mInstance == null) {
             mInstance = new DatabaseHelper(context);
         }
         return mInstance;
@@ -88,22 +88,22 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         int upgradeTo = oldVersion + 1;
-            while (upgradeTo <= newVersion){
-                switch (upgradeTo){
-                    case 1:
-                        Log.i("DATABASE", "Updated to version 1");
-                    case 2:
-                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-                        Log.i("DATABASE", "Updated to version 2");
-                    case 3:
-                        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
-                        Log.i("DATABASE", "Updated to version 3");
-                    case 4:
-                        Log.i("DATABASE", "Updated to version 4 , Just for test ");
-                        break;
-                }
-                upgradeTo++;
+        while (upgradeTo <= newVersion) {
+            switch (upgradeTo) {
+                case 1:
+                    Log.i("DATABASE", "Updated to version 1");
+                case 2:
+                    db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+                    Log.i("DATABASE", "Updated to version 2");
+                case 3:
+                    db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
+                    Log.i("DATABASE", "Updated to version 3");
+                case 4:
+                    Log.i("DATABASE", "Updated to version 4 , Just for test ");
+                    break;
             }
+            upgradeTo++;
+        }
 //        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 //        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
         onCreate(db);
@@ -200,7 +200,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 + " AND " + SENDER_ID + " = " + sender_id + ") " +
                 "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ")";
         Cursor cursor = database.rawQuery(selectQuery, null);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.ENGLISH);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         if (cursor.moveToFirst()) {
             do {
                 try {
@@ -240,7 +240,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 Date date = formatter.parse(cursor.getString(2));
                 message.setExpiresTime(date);
                 message.setUserId(Integer.parseInt(cursor.getString(3)));
-
             }
             database.close();
             cursor.close();
@@ -266,6 +265,38 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         }
         cursor.close();
         return user;
+    }
+
+    @Override
+    public List<Message> getLastTenMessages(int user_id, int sender_id, int offsetNumber) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        List<Message> messages = new ArrayList<>();
+
+        String selectQuery = "SELECT * FROM ( " + "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
+                + " AND " + SENDER_ID + " = " + sender_id + ") "
+                + "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ") ORDER BY  "
+                + MESSAGE_ID + " DESC LIMIT 20 OFFSET " + offsetNumber +  " ) " + " AS TEMP ORDER BY TEMP." + MESSAGE_ID + " ASC ";
+        Cursor cursor = database.rawQuery(selectQuery, null);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+        if (cursor.moveToFirst()) {
+            do {
+                try {
+                    Message message = new Message();
+                    message.setMessage_id(cursor.getInt(0));
+                    message.setMessage(cursor.getString(1));
+                    Date date = formatter.parse(cursor.getString(2));
+                    message.setExpiresTime(date);
+                    message.setSender_id(cursor.getInt(3));
+                    message.setUserId(Integer.parseInt(cursor.getString(4)));
+                    messages.add(message);
+                } catch (ParseException e) {
+                    Log.e("ParseException: ", e.getMessage());
+                }
+            } while (cursor.moveToNext());
+        }
+        database.close();
+        cursor.close();
+        return messages;
     }
 
 

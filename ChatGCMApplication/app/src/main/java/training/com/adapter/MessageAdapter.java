@@ -2,19 +2,19 @@ package training.com.adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
-import training.com.database.DatabaseHelper;
 import training.com.model.Message;
 
 /**
@@ -23,8 +23,6 @@ import training.com.model.Message;
 public class MessageAdapter extends ArrayAdapter<Message> {
     private Context context;
     private ArrayList<Message> messages;
-    private DatabaseHelper databaseHelper;
-    private Message message;
 
     @Override
     public void add(Message object) {
@@ -36,7 +34,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         super(context, textViewResouceId);
         this.context = context;
         this.messages = messages;
-        databaseHelper = DatabaseHelper.getInstance(context);
     }
 
     public int getCount() {
@@ -52,39 +49,82 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
 
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         MessageViewHolder messageViewHolder;
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
         if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.chat_item, parent, false);
-            messageViewHolder = new MessageViewHolder();
-            messageViewHolder.tv_userName = (TextView) convertView.findViewById(R.id.tv_chatName);
-            messageViewHolder.tv_message = (TextView) convertView.findViewById(R.id.tv_messageContent);
+            messageViewHolder = createViewHolder(convertView);
             convertView.setTag(messageViewHolder);
         } else {
             messageViewHolder = (MessageViewHolder) convertView.getTag();
         }
-        message = messages.get(position);
-        String username = databaseHelper.getUserByUserId(message.getUserId()).getUserName();
-        if (message.getUserId() == AppConfig.USER_ID) {
-            messageViewHolder.tv_message.setTextColor(Color.parseColor("#0066ff"));
-            messageViewHolder.tv_userName.setTextColor(Color.parseColor("#0066ff"));
-        } else {
-            messageViewHolder.tv_message.setTextColor(Color.parseColor("#000000"));
-            messageViewHolder.tv_userName.setTextColor(Color.parseColor("#000000"));
-        }
-        messageViewHolder.tv_userName.setText(username);
-        messageViewHolder.tv_message.setText(message.getMessage());
+        Message message = messages.get(position);
+        setAlignment(messageViewHolder, message.getUserId());
+        messageViewHolder.txtMessage.setText(message.getMessage());
+        messageViewHolder.txtInfo.setText(message.getExpiresTime()+"");
 
         return convertView;
     }
 
-    static class MessageViewHolder {
-        TextView tv_message;
-        TextView tv_userName;
+    private void setAlignment(MessageViewHolder holder, int user_id) {
+        if (user_id == AppConfig.USER_ID) {
+            holder.contentWithBG.setBackgroundResource(R.drawable.my_textview_border);
+
+            LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) holder.contentWithBG.getLayoutParams();
+            linearParams.gravity = Gravity.RIGHT;
+            holder.contentWithBG.setLayoutParams(linearParams);
+
+            RelativeLayout.LayoutParams relativeParams = (RelativeLayout.LayoutParams) holder.content.getLayoutParams();
+            relativeParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
+            relativeParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            holder.content.setLayoutParams(relativeParams);
+
+            linearParams = (LinearLayout.LayoutParams) holder.txtMessage.getLayoutParams();
+            linearParams.gravity = Gravity.RIGHT;
+            holder.txtMessage.setLayoutParams(linearParams);
+
+            linearParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
+            linearParams.gravity = Gravity.RIGHT;
+            holder.txtInfo.setLayoutParams(linearParams);
+        } else {
+            holder.contentWithBG.setBackgroundResource(R.drawable.friend_textview_border);
+
+            LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) holder.contentWithBG.getLayoutParams();
+            linearParams.gravity = Gravity.LEFT;
+            holder.contentWithBG.setLayoutParams(linearParams);
+
+            RelativeLayout.LayoutParams relativeParams = (RelativeLayout.LayoutParams) holder.content.getLayoutParams();
+            relativeParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
+            relativeParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            holder.content.setLayoutParams(relativeParams);
+
+            linearParams = (LinearLayout.LayoutParams) holder.txtMessage.getLayoutParams();
+            linearParams.gravity = Gravity.LEFT;
+            holder.txtMessage.setLayoutParams(linearParams);
+
+            linearParams = (LinearLayout.LayoutParams) holder.txtInfo.getLayoutParams();
+            linearParams.gravity = Gravity.LEFT;
+            holder.txtInfo.setLayoutParams(linearParams);
+        }
+    }
+
+    private MessageViewHolder createViewHolder(View v) {
+        MessageViewHolder holder = new MessageViewHolder();
+        holder.txtMessage = (TextView) v.findViewById(R.id.txtMessage);
+        holder.content = (LinearLayout) v.findViewById(R.id.content);
+        holder.contentWithBG = (LinearLayout) v.findViewById(R.id.contentWithBackground);
+        holder.txtInfo = (TextView) v.findViewById(R.id.txtInfo);
+        return holder;
+    }
+
+    private static class MessageViewHolder {
+        public TextView txtMessage;
+        public TextView txtInfo;
+        public LinearLayout content;
+        public LinearLayout contentWithBG;
     }
 
 

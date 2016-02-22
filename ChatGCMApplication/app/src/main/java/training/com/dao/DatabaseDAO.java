@@ -20,5 +20,6 @@ public interface DatabaseDAO {
     List<Message> getMessges(int user_id, int sender_id);
     Message getLastMessage(int user_id, int sender_id);
     Users checkLogin(String userName, String password);
+    List<Message> getLastTenMessages(int user_id, int sender_id, int offsetNumber);
 
 }
