@@ -1,8 +1,6 @@
 package training.com.chatgcmapplication;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +23,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String regId;
     private RegistrationIdManager registrationIdManager;
     private DatabaseHelper databaseHelper;
+    String getUsername;
+    String getPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,63 +33,50 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         userName = (EditText) findViewById(R.id.txt_userName_register);
         password = (EditText) findViewById(R.id.txt_password_register);
+
         Button btnRegist = (Button) findViewById(R.id.btn_register);
 
         btnRegist.setOnClickListener(this);
+
     }
 
     @Override
     public void onClick(View v) {
-        String name = userName.getText().toString();
-        String pass = password.getText().toString();
-        getRegId();
-        doRegist(name, pass);
-        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-        startActivity(intent);
+        getUsername = userName.getText().toString();
+        getPassword = password.getText().toString();
+        doRegister(getUsername, getPassword);
+
+
     }
 
-    private String storePass(String password) {
-        StringBuilder hexString = new StringBuilder();
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(password.getBytes());
-            byte[] mgsDigest = digest.digest();
-            for (byte aMgsDigest : mgsDigest) {
-                hexString.append(Integer.toHexString(0xFF & aMgsDigest));
-            }
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return hexString.toString();
-    }
-
-    private void doRegist(String username, String password) {
+    private void createUser(String username, String password,String regId) {
         DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         Users user = databaseHelper.getUser(username);
         if (user.getUserName() == null) {
             if (password.length() < 6) {
                 Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
             } else {
-                password = storePass(password);
+                password = databaseHelper.storePassword(password);
                 user = new Users();
                 user.setUserName(username);
                 user.setPassword(password);
                 user.setRegistrationId(regId);
                 databaseHelper.addUser(user);
+                Toast.makeText(getApplicationContext(), "Successful!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
             }
         } else {
             Toast.makeText(getApplicationContext(), "Your username is already exist", Toast.LENGTH_SHORT).show();
         }
-
     }
 
-    private void getRegId() {
+    private void doRegister(final String username, final String password) {
         registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
         registrationIdManager.registerIfNeeded(new RegistrationIdManager.RegistrationCompletedHandler() {
             @Override
             public void onSuccess(String registrationId, boolean isNewRegistration) {
-                regId = registrationId;
+                createUser(username, password, registrationId);
             }
             @Override
             public void onFailure(String ex) {

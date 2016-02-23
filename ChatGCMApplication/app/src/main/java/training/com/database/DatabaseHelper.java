@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
+import training.com.common.AppConfig;
 import training.com.dao.DatabaseDAO;
 import training.com.model.Message;
 import training.com.model.Users;
@@ -63,7 +66,6 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
             + EXPIRES_TIME + " datetime,"
             + SENDER_ID + " int,"
             + USER_ID + " integer, foreign key (" + USER_ID + ") references " + TABLE_USERS + "(" + USER_ID + "))";
-    private static final String SELECT_ALL_USER = "SELECT * FROM " + TABLE_USERS;
 
     private DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -93,10 +95,8 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
                 case 1:
                     Log.i("DATABASE", "Updated to version 1");
                 case 2:
-                    db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
                     Log.i("DATABASE", "Updated to version 2");
                 case 3:
-                    db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONTENT);
                     Log.i("DATABASE", "Updated to version 3");
                 case 4:
                     Log.i("DATABASE", "Updated to version 4 , Just for test ");
@@ -141,7 +141,9 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
     public ArrayList<Users> getUsers() {
         ArrayList<Users> userList = new ArrayList<Users>();
         SQLiteDatabase database = this.getWritableDatabase();
-        Cursor cursor = database.rawQuery(SELECT_ALL_USER, null);
+        String selectAllUser = "SELECT * FROM " + TABLE_USERS + " WHERE " + USER_ID + " !=" +AppConfig.USER_ID;
+
+        Cursor cursor = database.rawQuery(selectAllUser, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -164,13 +166,13 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
 
         Cursor cursor = database.rawQuery(selectUser, null);
         Users user = Users.getInstance();
-        if (cursor.getCount()>0) {
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
             user.setUserId(cursor.getInt(0));
             user.setUserName(cursor.getString(cursor.getColumnIndex(USERNAME)));
             user.setRegistrationId(cursor.getString(cursor.getColumnIndex(REGISTRATION_ID)));
             cursor.close();
-        }else {
+        } else {
             return new Users();
         }
         return user;
@@ -277,7 +279,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         String selectQuery = "SELECT * FROM ( " + "SELECT * FROM " + TABLE_CHAT_CONTENT + " WHERE ( " + USER_ID + "= " + user_id
                 + " AND " + SENDER_ID + " = " + sender_id + ") "
                 + "OR ( " + USER_ID + " = " + sender_id + " AND " + SENDER_ID + " = " + user_id + ") ORDER BY  "
-                + MESSAGE_ID + " DESC LIMIT 10 OFFSET " + offsetNumber +  " ) " + " AS TEMP ORDER BY TEMP." + MESSAGE_ID + " ASC ";
+                + MESSAGE_ID + " DESC LIMIT 10 OFFSET " + offsetNumber + " ) " + " AS TEMP ORDER BY TEMP." + MESSAGE_ID + " ASC ";
         Cursor cursor = database.rawQuery(selectQuery, null);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
         if (cursor.moveToFirst()) {
@@ -299,6 +301,23 @@ public class DatabaseHelper extends SQLiteOpenHelper implements DatabaseDAO {
         database.close();
         cursor.close();
         return messages;
+    }
+
+    @Override
+    public String storePassword(String password) {
+        StringBuilder hexString = new StringBuilder();
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(password.getBytes());
+            byte[] mgsDigest = digest.digest();
+            for (byte aMgsDigest : mgsDigest) {
+                hexString.append(Integer.toHexString(0xFF & aMgsDigest));
+            }
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return hexString.toString();
     }
 
 

@@ -66,18 +66,6 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         viewHolder.tv_userName.setText(objectItem.getUserName());
         viewHolder.tv_lastMessage.setText(message.getMessage());
 
-
-//        if(convertView==null){
-//            LayoutInflater inflater = (LayoutInflater)context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-//            convertView = inflater.inflate(R.layout.row_contact,null);
-//        }
-//        TextView tv_userName = (TextView)convertView.findViewById(R.id.tv_userName);
-//        TextView tv_lasMsg = (TextView)convertView.findViewById(R.id.tv_lastMsg);
-//        tv_userName.setText(listContact.get(position).getUserName());
-//        int userId = listContact.get(position).getUserId();
-//        Message message = databaseHelper.getLastMessage(userId, AppConfig.USER_ID);
-//        tv_lasMsg.setText(message.getMessage());
-
         return convertView;
     }
 

@@ -36,8 +36,8 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         databaseHelper = DatabaseHelper.getInstance(getActivity().getApplicationContext());
 
         View rootView = inflater.inflate(R.layout.list_contact, container, false);
-        ArrayList<Users> users= databaseHelper.getUsers();
-        ListView list_contact =(ListView)rootView.findViewById(R.id.list_contact);
+        ArrayList<Users> users = databaseHelper.getUsers();
+        ListView list_contact = (ListView) rootView.findViewById(R.id.list_contact);
         contactsAdapter = new ContactListFragmentAdapter(getActivity(), users);
         list_contact.setAdapter(contactsAdapter);
         list_contact.setOnItemClickListener(this);
@@ -48,9 +48,9 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent chatIntent = new Intent(getActivity(), ChatActivity.class);
 
-        chatIntent.putExtra("regId",databaseHelper.getUsers().get(position).getRegistrationId());
-        chatIntent.putExtra("titleName",databaseHelper.getUsers().get(position).getUserName());
-        chatIntent.putExtra("userId",databaseHelper.getUsers().get(position).getUserId());
+        chatIntent.putExtra("regId", databaseHelper.getUsers().get(position).getRegistrationId());
+        chatIntent.putExtra("titleName", databaseHelper.getUsers().get(position).getUserName());
+        chatIntent.putExtra("userId", databaseHelper.getUsers().get(position).getUserId());
         chatIntent.putExtra("name", AppConfig.USER_NAME);
         startActivity(chatIntent);
     }

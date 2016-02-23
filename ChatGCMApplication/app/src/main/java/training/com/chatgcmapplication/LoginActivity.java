@@ -24,6 +24,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
+        int id = preferences.getInt("userId", 0);
+        AppConfig.USER_ID = id;
+        AppConfig.USER_NAME = preferences.getString("userName", null);
+        AppConfig.REG_ID = preferences.getString("registration_id", null);
+        if (id != 0) {
+            Intent intent = new Intent(this, HomePageActivity.class);
+            startActivity(intent);
+        }
         name = (EditText) findViewById(R.id.txt_username);
         pass = (EditText) findViewById(R.id.txt_password);
         Button btnLogin = (Button) findViewById(R.id.btn_login);
@@ -50,8 +59,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void doLogin(String userName, String password) {
         DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         Users user = Users.getInstance();
+        password = databaseHelper.storePassword(password);
         user = databaseHelper.checkLogin(userName, password);
-        if (user.getUserId()==0) {
+        if (user.getUserId() == 0) {
             Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
         } else {
             saveUser(user);
@@ -62,7 +72,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btn_login:
                 String userName = name.getText().toString();
                 String password = pass.getText().toString();

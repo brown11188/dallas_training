@@ -26,6 +26,6 @@ public class AppConfig {
 
     public static String REG_ID;
 
-    public static String REGISTER_REG_ID;
+    public static int MSG_SENDER_ID;
 
 }

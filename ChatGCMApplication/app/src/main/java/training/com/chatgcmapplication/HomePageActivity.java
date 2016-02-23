@@ -94,7 +94,7 @@ public class HomePageActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.clear();
         editor.apply();
-        intent = new Intent(this, MainActivity.class);
+        intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 }
