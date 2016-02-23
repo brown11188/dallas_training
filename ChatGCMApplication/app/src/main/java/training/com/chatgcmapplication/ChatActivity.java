@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -31,19 +33,16 @@ import training.com.model.Message;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener,  SwipeRefreshLayout.OnRefreshListener {
-    private Button btn_send;
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static EditText txt_chat;
     private String registId;
-    private Bundle bundle;
     private String chatTitle;
     private MessageSender mgsSender;
     private int userId;
     private DatabaseHelper databaseHelper;
     private TimeUtil timeUtil;
     private MessageAdapter messageAdapter;
-    private ListView lv_message;
-    private int offsetNumber = 10;
+    private int offsetNumber = 5;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -55,15 +54,24 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        btn_send = (Button) findViewById(R.id.btn_send);
+        Button btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        lv_message = (ListView) findViewById(R.id.listMessage);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 1000);
+        final ListView lv_message = (ListView) findViewById(R.id.listMessage);
+        lv_message.setOnItemClickListener(this);
+
         timeUtil = new TimeUtil();
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         btn_send.setOnClickListener(this);
-        bundle = getIntent().getExtras();
+        Bundle bundle = getIntent().getExtras();
         chatTitle = bundle.getString("titleName");
         if (getIntent().getBundleExtra("INFO") != null) {
             chatTitle = getIntent().getBundleExtra("INFO").getString("name");
@@ -75,8 +83,16 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         userId = databaseHelper.getUser(chatTitle).getUserId();
         List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), 0);
         messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, (ArrayList<Message>) messages);
+
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+        messageAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                lv_message.setSelection(messageAdapter.getCount() -1);
+            }
+        });
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -155,11 +171,38 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onRefresh() {
-        List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), offsetNumber);
-        messageAdapter.insertToTheFirst(messages);
-        messageAdapter.notifyDataSetChanged();
-        offsetNumber += 5;
-        swipeRefreshLayout.setRefreshing(false);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                swipeRefreshLayout.setRefreshing(true);
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), offsetNumber);
+                messageAdapter.insertToTheFirst(messages);
+                offsetNumber += 5;
+                Log.i("Offset number", offsetNumber + "");
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                messageAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }.execute();
     }
 
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//        if (view != null) {
+//            TextView txtInfo = (TextView) parent.findViewById(R.id.txtInfo);
+//            txtInfo.setVisibility(View.VISIBLE);
+//        }
+    }
 }

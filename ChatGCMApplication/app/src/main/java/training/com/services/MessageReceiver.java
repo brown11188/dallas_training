@@ -31,15 +31,16 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
 
         Bundle bundle = intent.getExtras();
         TimeUtil timeUtil = new TimeUtil();
-        Intent br_intent = new Intent("Msg");
-        br_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent broadcastIntent = new Intent("Msg");
+        broadcastIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         String message = bundle.getString("message");
-        br_intent.putExtra("message", message);
-        br_intent.putExtra("name", bundle.getString("title"));
-        DatabaseHelper databaseHelper =  DatabaseHelper.getInstance(context);
-        Users user = databaseHelper.getUser(bundle.getString("title"));
+        String name = bundle.getString("title");
+        broadcastIntent.putExtra("message", message);
+        broadcastIntent.putExtra("name", name);
+        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
+        Users user = databaseHelper.getUser(name);
         databaseHelper.addMessage(message, timeUtil.getCurrentTime(), AppConfig.USER_ID, user.getUserId());
-        LocalBroadcastManager.getInstance(context).sendBroadcast(br_intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
         Intent gcmIntent = new Intent(context, MessageService.class);
         gcmIntent.putExtras(intent.getExtras());
         startWakefulService(context, gcmIntent);
