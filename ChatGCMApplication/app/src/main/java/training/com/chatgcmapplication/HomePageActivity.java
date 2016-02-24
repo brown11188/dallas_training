@@ -3,23 +3,26 @@ package training.com.chatgcmapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import training.com.adapter.HomePageAdapter;
 import training.com.common.AppConfig;
 
-public class HomePageActivity extends AppCompatActivity {
+public class HomePageActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAB_RECENT = "Recent chat";
     private final String TAB_CONTACTS = "Contact List";
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private Intent intent;
     private SharedPreferences preferences;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,8 @@ public class HomePageActivity extends AppCompatActivity {
             intent = new Intent(HomePageActivity.this, LoginActivity.class);
             startActivity(intent);
         }
-
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(this);
 
         tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText(TAB_RECENT));
@@ -96,5 +100,10 @@ public class HomePageActivity extends AppCompatActivity {
         editor.apply();
         intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onClick(View v) {
+        startActivity(new Intent(getApplicationContext(), MessageSendingActivity.class));
     }
 }

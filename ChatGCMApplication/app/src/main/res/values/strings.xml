@@ -17,4 +17,7 @@
     <string name="welcome">Welcome</string>
     <string name="btn_logout">LOGOUT</string>
     <string name="name">Username</string>
+    <string name="title_activity_message_sending">MessageSendingActivity</string>
+    <string name="tv_sendTo">Send to:</string>
+    <string name="tv_messageContent">Message Content</string>
 </resources>
