@@ -20,4 +20,6 @@
     <string name="title_activity_message_sending">MessageSendingActivity</string>
     <string name="tv_sendTo">Send to:</string>
     <string name="tv_messageContent">Message Content</string>
+    <string name="txt_contactName">Contact name</string>
+    <string name="txt_messageContent">Message content</string>
 </resources>

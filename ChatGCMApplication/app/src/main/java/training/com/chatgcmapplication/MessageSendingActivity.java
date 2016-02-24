@@ -7,32 +7,44 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import training.com.common.AppConfig;
 import training.com.database.DatabaseHelper;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
+import pa1pal.sendbutton.lib.*;
 
 public class MessageSendingActivity extends AppCompatActivity implements View.OnClickListener{
-    private TextView txtContacts, txtContent;
+    private TextView  txtContent;
+    private MultiAutoCompleteTextView txtContacts;
     private Button btnSendAll;
     private String[] contacts;
     private DatabaseHelper databaseHelper;
+    private String[] array = {"Hawk", "Harold"};
 
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_sending2);
-        txtContacts =(TextView) findViewById(R.id.txtContacts);
+        txtContacts =(MultiAutoCompleteTextView) findViewById(R.id.txtContacts);
         txtContent = (TextView) findViewById(R.id.txtContent);
         btnSendAll = (Button) findViewById(R.id.btnSendAll);
         btnSendAll.setOnClickListener(this);
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1,array);
+        txtContacts.setAdapter(adapter);
+        txtContacts.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
     }
 
     @Override
@@ -52,6 +64,12 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
             protected Void doInBackground(Void... params) {
                 messageSender.sendPost(messageSenderContent);
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                finish();
             }
         }.execute();
     }

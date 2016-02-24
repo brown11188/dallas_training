@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android" >
+    android:gravity="center"
+    android:background="#3DA5E1"
+    android:weightSum="1"
+    android:padding="10dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+
+    <MultiAutoCompleteTextView
+        android:id="@+id/txtContacts"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/tv_sendTo"
-        android:id="@+id/textView3" />
+        android:layout_marginBottom="10dp"
+        android:background="@color/input_login"
+        android:hint="@string/txt_contactName"
+        android:inputType="text"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textColor="@color/input_login_hint"
+        android:textColorHint="@color/input_register_hint" />
+
 
     <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txtContacts" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/tv_messageContent"
-        android:id="@+id/textView4" />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/txtContent" />
+        android:id="@+id/txtContent"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/input_login"
+        android:hint="@string/txt_messageContent"
+        android:inputType="text"
+        android:gravity="top"
+        android:padding="10dp"
+        android:textColor="@color/input_login_hint"
+        android:textColorHint="@color/input_register_hint"
+        android:layout_weight="0.88" />
 
     <Button
+        android:id="@+id/btnSendAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send"
-        android:id="@+id/btnSendAll" />
+        android:background="@drawable/ic_send"
+        />
+
+
+
+
 </LinearLayout>
