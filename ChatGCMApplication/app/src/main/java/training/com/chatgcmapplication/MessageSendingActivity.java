@@ -16,13 +16,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
+
 import training.com.common.AppConfig;
 import training.com.database.DatabaseHelper;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
-import pa1pal.sendbutton.lib.*;
 
 public class MessageSendingActivity extends AppCompatActivity implements View.OnClickListener{
     private TextView  txtContent;
