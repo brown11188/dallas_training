@@ -2,17 +2,26 @@ package training.com.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ImageSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
@@ -24,6 +33,9 @@ import training.com.model.Message;
 public class MessageAdapter extends ArrayAdapter<Message> {
     private Context context;
     private ArrayList<Message> messages;
+    private ArrayList<String> editMessages = new ArrayList<String>();
+    private HashMap<String, Integer> emotions = new HashMap<String, Integer>();
+    private ImageView showEmotion;
 
     @Override
     public void add(Message object) {
@@ -31,7 +43,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         super.add(object);
     }
 
-    public void insertToTheFirst(List<Message> object){
+    public void insertToTheFirst(List<Message> object) {
         messages.addAll(0, object);
     }
 
@@ -59,6 +71,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         MessageViewHolder messageViewHolder;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
+        emotions.put(":D",R.drawable.smile);
+        emotions.put(":(", R.drawable.sad);
+        emotions.put(":((", R.drawable.cry);
+        emotions.put(":@",R.drawable.angry);
+
+        fillMessages();
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.chat_item, parent, false);
             messageViewHolder = createViewHolder(convertView);
@@ -68,10 +86,36 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         }
         Message message = messages.get(position);
         setAlignment(messageViewHolder, message.getUserId());
-        messageViewHolder.txtMessage.setText(message.getMessage());
-        messageViewHolder.txtInfo.setText(message.getExpiresTime()+"");
+        messageViewHolder.txtMessage.setText(getEmotionText(getContext(), message.getMessage()));
+        messageViewHolder.txtInfo.setText(message.getExpiresTime() + "");
 
         return convertView;
+    }
+
+    private void fillMessages() {
+        for (Map.Entry<String, Integer> entry : emotions.entrySet()) {
+            editMessages.add(entry.getKey());
+
+        }
+    }
+
+    private Spannable getEmotionText(Context context, String text) {
+        SpannableStringBuilder builder = new SpannableStringBuilder(text);
+        int index;
+        for (index = 0; index < builder.length(); index++) {
+            for (Map.Entry<String, Integer> entry : emotions.entrySet()) {
+                int length = entry.getKey().length();
+                if (index + length > builder.length())
+                    continue;
+                if (builder.subSequence(index, index + length).toString().equals(entry.getKey())) {
+                    builder.setSpan(new ImageSpan(context, entry.getValue()), index, index + length,
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    index += length - 1;
+                    break;
+                }
+            }
+        }
+        return builder;
     }
 
     private void setAlignment(MessageViewHolder holder, int user_id) {

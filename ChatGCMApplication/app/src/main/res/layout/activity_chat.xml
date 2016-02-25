@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:weightSum="1">
+        android:weightSum="1"
+        >
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -31,7 +32,7 @@
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipeLayout"
             android:layout_width="match_parent"
-            android:layout_height="380dp"
+            android:layout_height="330dp"
             android:layout_weight="0.81">
 
             <ListView
@@ -42,31 +43,79 @@
                 android:layout_alignParentTop="false"
                 android:divider="@null"
                 android:listSelector="@android:color/transparent"
-                android:transcriptMode="alwaysScroll"
-                android:stackFromBottom="true" />
+                android:stackFromBottom="true"
+                android:transcriptMode="alwaysScroll" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="94dp"
-            android:orientation="horizontal"
-            android:weightSum="1">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/txt_chat"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.92"
-                android:inputType="text" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btn_send"
-                android:layout_width="wrap_content"
+                <ImageView
+                    android:id="@+id/cryImg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/cry" />
+
+                <ImageView
+                    android:id="@+id/smileImg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/smile" />
+
+                <ImageView
+                    android:id="@+id/angryImg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/angry" />
+
+                <ImageView
+                    android:id="@+id/sadImg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/sad" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="30dp"
-                android:text="@string/btn_send" />
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <EditText
+                    android:id="@+id/txt_chat"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_weight="0.92"
+                    android:inputType="text" />
+
+                <Button
+                    android:id="@+id/btn_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="30dp"
+                    android:text="@string/btn_send" />
+
+            </LinearLayout>
+
         </LinearLayout>
+
     </LinearLayout>
 
 
