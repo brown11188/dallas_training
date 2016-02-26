@@ -27,6 +27,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import training.com.adapter.MessageAdapter;
 import training.com.common.AppConfig;
 import training.com.common.TimeUtil;
@@ -45,23 +47,25 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private TimeUtil timeUtil;
     private MessageAdapter messageAdapter;
     private int offsetNumber = 0;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private ListView lv_message;
+    @Bind(R.id.btn_send)
+    Button btn_send;
+    @Bind(R.id.swipeLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @Bind(R.id.listMessage)
+    ListView lv_message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        Button btn_send = (Button) findViewById(R.id.btn_send);
         txt_chat = (EditText) findViewById(R.id.txt_chat);
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        lv_message = (ListView) findViewById(R.id.listMessage);
         lv_message.setOnItemClickListener(this);
         timeUtil = new TimeUtil();
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
