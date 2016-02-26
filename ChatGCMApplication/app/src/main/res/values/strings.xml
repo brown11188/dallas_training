@@ -22,4 +22,8 @@
     <string name="tv_messageContent">Message Content</string>
     <string name="txt_contactName">Contact name</string>
     <string name="txt_messageContent">Message content</string>
+
+    <integer name="mb_animation">500</integer>
+
+    <string name="mb_button">Send</string>
 </resources>

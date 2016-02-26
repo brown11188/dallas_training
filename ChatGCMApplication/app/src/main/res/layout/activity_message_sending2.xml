@@ -45,12 +45,14 @@
             android:textColor="@color/input_login_hint"
             android:textColorHint="@color/input_register_hint" />
 
-        <Button
+        <com.dd.morphingbutton.impl.LinearProgressButton
             android:id="@+id/btnSendAll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_send" />
-
-
+            android:text="Send"
+            android:textColor="@color/white"
+            android:layout_gravity="center"/>
     </LinearLayout>
+
+
 </android.support.design.widget.CoordinatorLayout>

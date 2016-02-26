@@ -43,7 +43,7 @@ public class HomePageActivity extends AppCompatActivity implements View.OnClickL
         tabLayout = (TabLayout)findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText(TAB_RECENT));
         tabLayout.addTab(tabLayout.newTab().setText(TAB_CONTACTS));
-        tabLayout.setTabGravity(tabLayout.GRAVITY_FILL);
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         viewPager = (ViewPager)findViewById(R.id.pager);
         HomePageAdapter homePageAdapter = new HomePageAdapter

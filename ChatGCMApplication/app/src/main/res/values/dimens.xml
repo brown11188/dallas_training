@@ -7,4 +7,14 @@
     <dimen name="tab_label">14sp</dimen>
     <dimen name="custom_tab_layout_height">72dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="mb_corner_radius_2">2dp</dimen>
+    <dimen name="mb_corner_radius_4">4dp</dimen>
+    <dimen name="mb_width_100">100dp</dimen>
+    <dimen name="mb_width_120">120dp</dimen>
+    <dimen name="mb_width_200">200dp</dimen>
+    <dimen name="mb_height_56">56dp</dimen>
+    <dimen name="mb_height_8">8dp</dimen>
+    <dimen name="mb_height_4">4dp</dimen>
+
 </resources>
