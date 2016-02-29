@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.DataSetObserver;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +32,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import training.com.adapter.MessageAdapter;
 import training.com.common.AppConfig;
 import training.com.common.TimeUtil;
@@ -66,6 +69,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         txt_chat = (EditText) findViewById(R.id.txt_chat);
+//        cryImg.setOnClickListener(this);
+//        smileImg.setOnClickListener(this);
+//        angryImg.setOnClickListener(this);
+//        sadImg.setOnClickListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
         lv_message.setOnItemClickListener(this);
         timeUtil = new TimeUtil();
@@ -128,12 +135,14 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         return mgsContent;
     }
 
+    @OnClick({R.id.btn_send, R.id.cryImg, R.id.smileImg, R.id.sadImg, R.id.angryImg})
     @Override
     public void onClick(View v) {
+        String message;
         switch (v.getId()) {
             case R.id.btn_send:
 
-                String message = txt_chat.getText().toString();
+                message = txt_chat.getText().toString();
                 if (!message.equals("")) {
 
 
@@ -162,6 +171,18 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     messageAdapter.notifyDataSetChanged();
                 }
                 break;
+            case R.id.cryImg:
+                showEmoji(":((");
+                break;
+            case R.id.smileImg:
+                showEmoji(":D");
+                break;
+            case R.id.angryImg:
+                showEmoji(":@");
+                break;
+            case R.id.sadImg:
+                showEmoji(":(");
+                break;
         }
     }
 
@@ -169,6 +190,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRefresh() {
         new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                swipeRefreshLayout.setRefreshing(true);
+            }
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -192,5 +219,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TextView tvInfo = (TextView) view.findViewById(R.id.txtInfo);
         tvInfo.setVisibility(View.VISIBLE);
+    }
+
+    private void showEmoji(String emoji){
+        txt_chat.setText(txt_chat.getText().toString() + emoji);
+        txt_chat.setSelection(txt_chat.getText().length());
     }
 }

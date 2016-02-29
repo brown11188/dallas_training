@@ -42,6 +42,7 @@
                 android:layout_alignParentTop="false"
                 android:divider="@null"
                 android:stackFromBottom="true"
+                android:transcriptMode="alwaysScroll"
                 android:listSelector="@android:color/transparent" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
