@@ -26,6 +26,8 @@ android {
     }
 }
 
+
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
@@ -39,5 +41,6 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.1'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.github.dmytrodanylyk:android-morphing-button:v1.0.0'
+    compile 'com.github.wangjiegulu:RapidFloatingActionButton:e3bf8dfaf0'
 }
 apply plugin: 'com.google.gms.google-services'

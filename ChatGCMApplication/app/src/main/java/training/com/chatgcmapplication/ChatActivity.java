@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,7 +47,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private DatabaseHelper databaseHelper;
     private TimeUtil timeUtil;
     private MessageAdapter messageAdapter;
-    private int offsetNumber = 0;
+    private int offsetNumber = 5;
     @Bind(R.id.btn_send)
     Button btn_send;
     @Bind(R.id.swipeLayout)
@@ -82,7 +83,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         userId = databaseHelper.getUser(chatTitle).getUserId();
         List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), 0);
         messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, (ArrayList<Message>) messages);
-
         LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
     }
@@ -132,30 +132,35 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
+
                 String message = txt_chat.getText().toString();
-                databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-                mgsSender = new MessageSender();
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
-                        mgsSender.sendPost(mgsContent);
-                        return null;
+                if (!message.equals("")) {
+
+
+                    databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+                    mgsSender = new MessageSender();
+                    new AsyncTask<Void, Void, Void>() {
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
+                            mgsSender.sendPost(mgsContent);
+                            return null;
+                        }
+                    }.execute();
+                    databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, AppConfig.USER_ID);
+                    txt_chat.setText("");
+                    try {
+                        Message messageObj = new Message();
+                        messageObj.setMessage(message);
+                        messageObj.setUserId(AppConfig.USER_ID);
+                        messageObj.setSender_id(userId);
+                        messageObj.setExpiresTime(timeUtil.formatDateTime(timeUtil.getCurrentTime()));
+                        messageAdapter.add(messageObj);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
-                }.execute();
-                databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, AppConfig.USER_ID);
-                txt_chat.setText("");
-                try {
-                    Message messageObj = new Message();
-                    messageObj.setMessage(message);
-                    messageObj.setUserId(AppConfig.USER_ID);
-                    messageObj.setSender_id(userId);
-                    messageObj.setExpiresTime(timeUtil.formatDateTime(timeUtil.getCurrentTime()));
-                    messageAdapter.add(messageObj);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    messageAdapter.notifyDataSetChanged();
                 }
-                messageAdapter.notifyDataSetChanged();
                 break;
         }
     }
@@ -170,8 +175,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), offsetNumber);
                 messageAdapter.insertToTheFirst(messages);
                 offsetNumber += 5;
-                Log.i("Offset number", offsetNumber + "");
-
                 return null;
             }
 

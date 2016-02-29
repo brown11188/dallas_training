@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import training.com.common.AppConfig;
 import training.com.common.MorphinButtonCreator;
 import training.com.common.ProgressGenerator;
@@ -35,7 +37,8 @@ import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
 public class MessageSendingActivity extends AppCompatActivity implements View.OnClickListener {
-    private EditText txtContent;
+    @Bind(R.id.txtContent)
+    EditText txtContent;
     private MultiAutoCompleteTextView txtContacts;
     private String[] contacts;
     private DatabaseHelper databaseHelper;
@@ -48,8 +51,8 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_sending2);
+        ButterKnife.bind(this);
         txtContacts = (MultiAutoCompleteTextView) findViewById(R.id.txtContacts);
-        txtContent = (EditText) findViewById(R.id.txtContent);
         btnMorph = (LinearProgressButton) findViewById(R.id.btnSendAll);
         btnMorph.setOnClickListener(this);
         context = getApplication();
@@ -64,6 +67,7 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
     @Override
     public void onClick(View v) {
         if (txtContacts.getText().length() > 0 && txtContent.getText().length() > 0) {
+            buttonCreator.onMorphButton1Clicked(btnMorph, context);
             final MessageSenderContent messageSenderContent = new MessageSenderContent();
             List<String> registration_ids = new ArrayList<>();
             final MessageSender messageSender = new MessageSender();
@@ -77,24 +81,16 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
             new AsyncTask<Void, Void, Void>() {
 
                 @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                    buttonCreator.onMorphButton1Clicked(btnMorph, context);
-                }
-
-                @Override
                 protected Void doInBackground(Void... params) {
                     messageSender.sendPost(messageSenderContent);
                     return null;
                 }
-
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     super.onPostExecute(aVoid);
                     finish();
                 }
             }.execute();
-
         } else {
             Toast.makeText(getApplicationContext(), "Please fill all required field.", Toast.LENGTH_SHORT).show();
         }

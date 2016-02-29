@@ -12,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:weightSum="1"
-        >
+        android:weightSum="1">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -42,9 +41,8 @@
                 android:layout_alignParentLeft="false"
                 android:layout_alignParentTop="false"
                 android:divider="@null"
-                android:listSelector="@android:color/transparent"
                 android:stackFromBottom="true"
-                android:transcriptMode="alwaysScroll" />
+                android:listSelector="@android:color/transparent" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
@@ -113,10 +111,6 @@
                     android:text="@string/btn_send" />
 
             </LinearLayout>
-
         </LinearLayout>
-
     </LinearLayout>
-
-
 </android.support.design.widget.CoordinatorLayout>
