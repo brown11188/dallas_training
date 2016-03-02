@@ -16,7 +16,7 @@ import com.api.model.TblUser;
 @Controller
 public class ChatController {
 	@Autowired
-	UserDAOImp userDAO;
+	private UserDAOImp userDAO;
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public @ResponseBody List<TblUser> getUsers(@RequestParam("userName") String userName) {
@@ -40,17 +40,28 @@ public class ChatController {
 		return user;
 	}
 
+	@RequestMapping(value = "/login",method = RequestMethod.GET)
+	public @ResponseBody TblUser login(@RequestParam("userName") String userName,
+			@RequestParam("password") String password){
+		TblUser user = new TblUser();
+		password = userDAO.storePassword(password);
+		user = userDAO.checkLogin(userName, password);
+		return user;
+		
+	}
+	
 	@RequestMapping(value = "/add", method = RequestMethod.GET)
 	public @ResponseBody String addUser(@RequestParam("userName") String userName,
 			@RequestParam("password") String password, @RequestParam("registrationId") String registrationId) {
 		TblUser user = new TblUser();
 		user.setUserName(userName);
+		password = userDAO.storePassword(password);
 		user.setPassword(password);
 		user.setRegistrationId(registrationId);
 		if (userDAO.addUser(user) == true) {
-			return "successful";
+			return "{'result' : 'successful'}";
 		} else {
-			return "fail";
+			return "{'result' : 'fail'}";
 		}
 
 	}

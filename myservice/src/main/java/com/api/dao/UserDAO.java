@@ -1,6 +1,5 @@
 package com.api.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.api.model.TblMessage;
@@ -11,7 +10,6 @@ import com.api.model.TblUser;
 public interface UserDAO {
 	boolean addUser(TblUser user);
     void addMessage(String message, String expires_date, int user_id, int sender_id );
-    List<TblUser> getUsers();
     TblUser getUser(String username);
     TblUser getUserByUserId(int user_id);
     List<TblMessage> getMessges(int user_id, int sender_id);
