@@ -69,10 +69,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         txt_chat = (EditText) findViewById(R.id.txt_chat);
-//        cryImg.setOnClickListener(this);
-//        smileImg.setOnClickListener(this);
-//        angryImg.setOnClickListener(this);
-//        sadImg.setOnClickListener(this);
         swipeRefreshLayout.setOnRefreshListener(this);
         lv_message.setOnItemClickListener(this);
         timeUtil = new TimeUtil();

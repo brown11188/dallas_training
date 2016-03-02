@@ -40,7 +40,6 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
     @Bind(R.id.txtContent)
     EditText txtContent;
     private MultiAutoCompleteTextView txtContacts;
-    private String[] contacts;
     private DatabaseHelper databaseHelper;
     private String[] array = {"Hawk", "Harold"};
     private LinearProgressButton btnMorph;
@@ -58,7 +57,7 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
         context = getApplication();
         buttonCreator = new MorphinButtonCreator();
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array);
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_2, array);
         txtContacts.setAdapter(adapter);
         txtContacts.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         buttonCreator.morphToSquare(btnMorph, 0, context);
@@ -71,7 +70,7 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
             final MessageSenderContent messageSenderContent = new MessageSenderContent();
             List<String> registration_ids = new ArrayList<>();
             final MessageSender messageSender = new MessageSender();
-            contacts = txtContacts.getText().toString().split(",");
+            String[] contacts = txtContacts.getText().toString().split(",");
             for (String contact : contacts) {
                 String regId = databaseHelper.getUser(contact.trim()).getRegistrationId();
                 registration_ids.add(regId);

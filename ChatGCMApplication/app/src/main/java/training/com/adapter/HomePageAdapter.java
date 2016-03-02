@@ -22,11 +22,9 @@ public class HomePageAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                RecentChatFragment recentFrag = new RecentChatFragment();
-                return recentFrag;
+                return new RecentChatFragment();
             case 1:
-                ContactFragment contactFrag = new ContactFragment();
-                return contactFrag;
+                return new ContactFragment();
             default:
                 return null;
         }
