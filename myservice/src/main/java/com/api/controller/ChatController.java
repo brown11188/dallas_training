@@ -11,59 +11,80 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.api.dao.UserDAOImp;
+import com.api.model.TblMessage;
 import com.api.model.TblUser;
 
 @Controller
 public class ChatController {
-	@Autowired
-	private UserDAOImp userDAO;
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public @ResponseBody List<TblUser> getUsers(@RequestParam("userName") String userName) {
+    @Autowired
+    UserDAOImp userDAO;
 
-		List<TblUser> users = new ArrayList<TblUser>();
-		users = userDAO.getUsers(userName);
-		return users;
-	}
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public @ResponseBody TblUser login(@RequestParam("userName") String userName,
+            @RequestParam("password") String password) {
+        TblUser user = new TblUser();
+        password = userDAO.storePassword(password);
+        user = userDAO.checkLogin(userName, password);
+        return user;
 
-	@RequestMapping(value = "/getuser/byname", method = RequestMethod.GET)
-	public @ResponseBody TblUser getUserByName(@RequestParam("userName") String userName) {
-		TblUser user = new TblUser();
-		user = userDAO.getUser(userName);
-		return user;
-	}
+    }
 
-	@RequestMapping(value = "/getuser/byid", method = RequestMethod.GET)
-	public @ResponseBody TblUser getUserById(@RequestParam("userId") int userId) {
-		TblUser user = new TblUser();
-		user = userDAO.getUserByUserId(userId);
-		return user;
-	}
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public @ResponseBody List<TblUser> getUsers(@RequestParam("userName") String userName) {
 
-	@RequestMapping(value = "/login",method = RequestMethod.GET)
-	public @ResponseBody TblUser login(@RequestParam("userName") String userName,
-			@RequestParam("password") String password){
-		TblUser user = new TblUser();
-		password = userDAO.storePassword(password);
-		user = userDAO.checkLogin(userName, password);
-		return user;
-		
-	}
-	
-	@RequestMapping(value = "/add", method = RequestMethod.GET)
-	public @ResponseBody String addUser(@RequestParam("userName") String userName,
-			@RequestParam("password") String password, @RequestParam("registrationId") String registrationId) {
-		TblUser user = new TblUser();
-		user.setUserName(userName);
-		password = userDAO.storePassword(password);
-		user.setPassword(password);
-		user.setRegistrationId(registrationId);
-		if (userDAO.addUser(user) == true) {
-			return "{'result' : 'successful'}";
-		} else {
-			return "{'result' : 'fail'}";
-		}
+        List<TblUser> users = new ArrayList<TblUser>();
+        users = userDAO.getUsers(userName);
+        return users;
+    }
 
-	}
+    @RequestMapping(value = "/getuser/byname", method = RequestMethod.GET)
+    public @ResponseBody TblUser getUserByName(@RequestParam("userName") String userName) {
+        TblUser user = new TblUser();
+        user = userDAO.getUser(userName);
+        return user;
+    }
 
+    @RequestMapping(value = "/getuser/byid", method = RequestMethod.GET)
+    public @ResponseBody TblUser getUserById(@RequestParam("userId") int userId) {
+        TblUser user = new TblUser();
+        user = userDAO.getUserByUserId(userId);
+        return user;
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.GET)
+    public @ResponseBody String addUser(@RequestParam("userName") String userName,
+            @RequestParam("password") String password, @RequestParam("registrationId") String registrationId) {
+        TblUser user = new TblUser();
+        user.setUserName(userName);
+        user.setPassword(password);
+        user.setRegistrationId(registrationId);
+        if (userDAO.addUser(user) == true) {
+            return "successful";
+        } else {
+            return "fail";
+        }
+
+    }
+
+    @RequestMapping(value = "/getmessages", method = RequestMethod.GET)
+    public @ResponseBody List<TblMessage> getMessges(@RequestParam("user_id") int user_id,
+            @RequestParam("sender_id") int sender_id) {
+        List<TblMessage> messages = userDAO.getMessges(user_id, sender_id);
+        return messages;
+    }
+
+    @RequestMapping(value = "/addmessage", method = RequestMethod.GET)
+    public @ResponseBody void addMessage(@RequestParam("content") String content,
+            @RequestParam("expires_time") String expires_time, @RequestParam("user_id") int user_id,
+            @RequestParam("sender_id") int sender_id) {
+        userDAO.addMessage(content, expires_time, sender_id, user_id);
+    }
+
+    @RequestMapping(value = "/getlastmessage", method = RequestMethod.GET)
+    public @ResponseBody TblMessage getLastMessage(@RequestParam("user_id") int user_id,
+            @RequestParam("sender_id") int sender_id) {
+        TblMessage message = userDAO.getLastMessage(user_id, sender_id);
+        return message;
+    }
 }
