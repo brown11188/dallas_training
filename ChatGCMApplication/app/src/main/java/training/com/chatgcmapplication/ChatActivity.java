@@ -215,6 +215,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TextView tvInfo = (TextView) view.findViewById(R.id.txtInfo);
         tvInfo.setVisibility(View.VISIBLE);
+        Log.i("date time", tvInfo.getText().toString());
     }
 
     private void showEmoji(String emoji){

@@ -9,11 +9,20 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
+import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
 import training.com.model.Users;
@@ -49,7 +58,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.row_contact, parent, false);
@@ -61,11 +70,39 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        Users objectItem = listContact.get(position);
-        Message message = databaseHelper.getLastMessage(objectItem.getUserId(), AppConfig.USER_ID);
-        viewHolder.tv_userName.setText(objectItem.getUserName());
-        viewHolder.tv_lastMessage.setText(message.getMessage());
+        final Users objectItem = listContact.get(position);
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .create();
+        Retrofit client = new Retrofit.Builder()
+                .baseUrl(AppConfig.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
 
+        RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
+
+        Call<Message> call = service.getLastMessage(objectItem.getUserId(), AppConfig.USER_ID);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccess()) {
+                    Message message = response.body();
+                    Log.i("In retrofit method success message", response.body() + "");
+                    viewHolder.tv_lastMessage.setText(message.getMessage());
+                } else {
+                    Log.i("In retrofit method failure", response.body() + "");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+                Log.i("In retrofit method failure message", t.toString());
+            }
+
+
+        });
+
+        viewHolder.tv_userName.setText(objectItem.getUserName());
         return convertView;
     }
 
