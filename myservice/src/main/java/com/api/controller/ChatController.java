@@ -87,4 +87,12 @@ public class ChatController {
         TblMessage message = userDAO.getLastMessage(user_id, sender_id);
         return message;
     }
+
+    @RequestMapping(value = "/getlasttenmessage", method = RequestMethod.GET)
+    public @ResponseBody List<TblMessage> getMessges(@RequestParam("user_id") int user_id,
+            @RequestParam("sender_id") int sender_id, @RequestParam("offset_number") int offset_number) {
+        List<TblMessage> messages = userDAO.getLastTenMessages(user_id, sender_id, offset_number);
+        return messages;
+
+    }
 }

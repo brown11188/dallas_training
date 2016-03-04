@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -82,7 +83,6 @@ public class UserDAOImp implements UserDAO {
         messageObj.setSenderId(sender_id);
         session.persist(messageObj);
         tx.commit();
-        session.close();
 
     }
 
@@ -152,10 +152,19 @@ public class UserDAOImp implements UserDAO {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<TblMessage> getLastTenMessages(int user_id, int sender_id, int offsetNumber) {
-        // TODO Auto-generated method stub
-        return null;
+        Session session = this.sessionFactory.openSession();
+        String queryString = "select * from (select * from tbl_message where (user_id=1 and sender_id=2) or (user_id=2 and sender_id=1)  order by message_id desc limit 10 offset 0 ) as temp order by temp.message_id asc";
+        SQLQuery sql = session.createSQLQuery(queryString);
+        sql.addEntity("tbl_message", TblMessage.class);
+        List<TblMessage> messages = sql.list();
+        if (messages.size() > 0) {
+            return messages;
+        } else {
+            return null;
+        }
     }
 
 }
