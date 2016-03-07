@@ -11,8 +11,8 @@
         <property name="message" type="string">
             <column name="message" length="225" />
         </property>
-        <property name="expiresTime" type="string">
-            <column name="expires_time" length="100" not-null="true" />
+        <property name="expiresTime" type="timestamp">
+            <column name="expires_time" length="19" not-null="true" />
         </property>
         <property name="senderId" type="java.lang.Integer">
             <column name="sender_id" />
