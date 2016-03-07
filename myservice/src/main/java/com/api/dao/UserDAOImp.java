@@ -78,7 +78,7 @@ public class UserDAOImp implements UserDAO {
         Transaction tx = session.beginTransaction();
         TblMessage messageObj = new TblMessage();
         messageObj.setMessage(message);
-        messageObj.setExpiresTime(expires_date);
+      //  messageObj.setExpiresTime(expires_date);
         messageObj.setUserId(user_id);
         messageObj.setSenderId(sender_id);
         session.persist(messageObj);
