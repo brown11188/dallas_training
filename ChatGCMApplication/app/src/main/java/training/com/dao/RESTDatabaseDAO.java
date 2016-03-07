@@ -20,4 +20,14 @@ public interface RESTDatabaseDAO {
     @GET("getlastmessage")
     Call<Message> getLastMessage(@Query("user_id") int user_id,
                                  @Query("sender_id") int sender_id);
+    @GET("login")
+    Call<Users> getUser(@Query("userName") String username,
+                        @Query("password") String password);
+    @GET("regist")
+    Call<Users> regist(@Query("userName") String username,
+                       @Query("password") String password,
+                       @Query("registrationId") String registration_id);
+    @GET("getUser")
+    Call<Users> getUserByName(@Query("userName") String username);
+
 }

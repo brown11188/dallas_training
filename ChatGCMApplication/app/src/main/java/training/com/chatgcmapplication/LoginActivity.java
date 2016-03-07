@@ -10,7 +10,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitGenerator;
+import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
 import training.com.model.Users;
 import training.com.services.RegistrationIdManager;
@@ -23,7 +30,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
         int id = preferences.getInt("userId", 0);
         AppConfig.USER_ID = id;
@@ -57,17 +63,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void doLogin(String userName, String password) {
-        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-        Users user = Users.getInstance();
-        password = databaseHelper.storePassword(password);
-        user = databaseHelper.checkLogin(userName, password);
-        if (user.getUserId() == 0) {
-            Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
-        } else {
-            saveUser(user);
-            Intent intent = new Intent(this, HomePageActivity.class);
-            startActivity(intent);
-        }
+        RetrofitGenerator retrofitGenerator = new RetrofitGenerator();
+        Retrofit retrofit = new Retrofit.Builder().
+                baseUrl(AppConfig.BASE_URL).
+                addConverterFactory(GsonConverterFactory.create()).build();
+        RESTDatabaseDAO service = retrofit.create(RESTDatabaseDAO.class);
+        Call<Users> callUser =  service.getUser(userName, password);
+        callUser.enqueue(new Callback<Users>() {
+            @Override
+            public void onResponse(Call<Users> call, Response<Users> response) {
+                if(response.isSuccess()){
+                    Users user = response.body();
+                    saveUser(user);
+                    Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
+                    startActivity(intent);
+                }else {
+                    Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<Users> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Please, check your internet connection", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override

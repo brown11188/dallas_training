@@ -12,7 +12,14 @@ import android.widget.Toast;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitGenerator;
+import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
 import training.com.model.Users;
 import training.com.services.RegistrationIdManager;
@@ -49,26 +56,44 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void createUser(String username, String password,String regId) {
-        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-        Users user = databaseHelper.getUser(username);
-        if (user.getUserName() == null) {
-            if (password.length() < 6) {
-                Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
-            } else {
-                password = databaseHelper.storePassword(password);
-                user = new Users();
-                user.setUserName(username);
-                user.setPassword(password);
-                user.setRegistrationId(regId);
-                databaseHelper.addUser(user);
-                Toast.makeText(getApplicationContext(), "Successful!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
+    private void createUser(String username, String password, String regId) {
+//        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+//        Users user = databaseHelper.getUser(username);
+//        if (user.getUserName() == null) {
+//            if (password.length() < 6) {
+//                Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
+//            } else {
+//                password = databaseHelper.storePassword(password);
+//                user = new Users();
+//                user.setUserName(username);
+//                user.setPassword(password);
+//                user.setRegistrationId(regId);
+//                databaseHelper.addUser(user);
+//                Toast.makeText(getApplicationContext(), "Successful!", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+//                startActivity(intent);
+//            }
+//        } else {
+//            Toast.makeText(getApplicationContext(), "Your username is already exist", Toast.LENGTH_SHORT).show();
+//        }
+        RetrofitGenerator retrofitGenerator = new RetrofitGenerator();
+        Retrofit retrofit = new Retrofit.Builder().
+                baseUrl(AppConfig.BASE_URL).
+                addConverterFactory(GsonConverterFactory.create()).build();
+        RESTDatabaseDAO service = retrofit.create(RESTDatabaseDAO.class);
+        Call<Users> userCall = service.regist(username, password, regId);
+        userCall.enqueue(new Callback<Users>() {
+            @Override
+            public void onResponse(Call<Users> call, Response<Users> response) {
+
             }
-        } else {
-            Toast.makeText(getApplicationContext(), "Your username is already exist", Toast.LENGTH_SHORT).show();
-        }
+
+            @Override
+            public void onFailure(Call<Users> call, Throwable t) {
+
+            }
+        });
+
     }
 
     private void doRegister(final String username, final String password) {
@@ -78,6 +103,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             public void onSuccess(String registrationId, boolean isNewRegistration) {
                 createUser(username, password, registrationId);
             }
+
             @Override
             public void onFailure(String ex) {
                 Log.i("Registration Id", "Register Fail");
