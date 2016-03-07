@@ -1,6 +1,7 @@
 package com.api.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +77,7 @@ public class ChatController {
 
     @RequestMapping(value = "/addmessage", method = RequestMethod.GET)
     public @ResponseBody void addMessage(@RequestParam("content") String content,
-            @RequestParam("expires_time") String expires_time, @RequestParam("user_id") int user_id,
+            @RequestParam("expires_time") Date expires_time, @RequestParam("user_id") int user_id,
             @RequestParam("sender_id") int sender_id) {
         userDAO.addMessage(content, expires_time, sender_id, user_id);
     }

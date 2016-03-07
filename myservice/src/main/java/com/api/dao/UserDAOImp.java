@@ -3,6 +3,7 @@ package com.api.dao;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.SQLQuery;
@@ -73,12 +74,12 @@ public class UserDAOImp implements UserDAO {
     }
 
     @Override
-    public void addMessage(String message, String expires_date, int user_id, int sender_id) {
+    public void addMessage(String message, Date expires_date, int user_id, int sender_id) {
         Session session = this.sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
         TblMessage messageObj = new TblMessage();
         messageObj.setMessage(message);
-      //  messageObj.setExpiresTime(expires_date);
+        messageObj.setExpiresTime(expires_date);
         messageObj.setUserId(user_id);
         messageObj.setSenderId(sender_id);
         session.persist(messageObj);
