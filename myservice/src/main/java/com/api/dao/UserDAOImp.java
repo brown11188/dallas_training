@@ -143,9 +143,9 @@ public class UserDAOImp implements UserDAO {
         Session session = this.sessionFactory.openSession();
         TblMessage message = (TblMessage) session
                 .createQuery(
-                        "from TblMessage where ( user_id = ? and sender_id =? ) or (user_id=? and sender_id =?) order by message_id desc limit 1 ")
+                        "from TblMessage where ( user_id = ? and sender_id =? ) or (user_id=? and sender_id =?) order by message_id DESC LIMIT 1")
                 .setInteger(0, user_id).setInteger(1, sender_id).setInteger(2, sender_id).setInteger(3, user_id)
-                .uniqueResult();
+                .setMaxResults(1).uniqueResult();
         if (message != null) {
             return message;
         } else {

@@ -1,6 +1,7 @@
 package training.com.dao;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 
 import retrofit2.Call;
@@ -20,6 +21,13 @@ public interface RESTDatabaseDAO {
     @GET("getlastmessage")
     Call<Message> getLastMessage(@Query("user_id") int user_id,
                                  @Query("sender_id") int sender_id);
+
+    @GET("addmessage")
+    Call<Message> addMessage(@Query("content") String content,
+                             @Query("expires_time")Date expires_time,
+                             @Query("user_id") int user_id,
+                             @Query("sender_id") int sender_id);
+
     @GET("login")
     Call<Users> getUser(@Query("userName") String username,
                         @Query("password") String password);

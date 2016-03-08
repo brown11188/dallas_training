@@ -9,10 +9,21 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -22,6 +33,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitGenerator;
 import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
@@ -34,11 +46,13 @@ public class ContactListFragmentAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<Users> listContact;
     private DatabaseHelper databaseHelper;
+    private RetrofitGenerator retrofitGenerator;
 
     public ContactListFragmentAdapter(Context context, ArrayList<Users> listContact) {
         this.context = context;
         this.listContact = listContact;
         databaseHelper = DatabaseHelper.getInstance(context);
+        retrofitGenerator =  new RetrofitGenerator();
     }
 
     @Override
@@ -71,12 +85,12 @@ public class ContactListFragmentAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         final Users objectItem = listContact.get(position);
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create();
+
+
+
         Retrofit client = new Retrofit.Builder()
                 .baseUrl(AppConfig.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(GsonConverterFactory.create(retrofitGenerator.gsonDateGenerator()))
                 .build();
 
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
@@ -87,7 +101,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if (response.isSuccess()) {
                     Message message = response.body();
-                    Log.i("In retrofit method success message", response.body() + "");
+                    Log.i("In retrofit method success message", response.body().getExpiresTime().toString().trim());
                     viewHolder.tv_lastMessage.setText(message.getMessage());
                 } else {
                     Log.i("In retrofit method failure", response.body() + "");
@@ -101,7 +115,6 @@ public class ContactListFragmentAdapter extends BaseAdapter {
 
 
         });
-
         viewHolder.tv_userName.setText(objectItem.getUserName());
         return convertView;
     }

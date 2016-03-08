@@ -25,6 +25,7 @@ public class ChatController {
     public @ResponseBody TblUser login(@RequestParam("userName") String userName,
             @RequestParam("password") String password) {
         TblUser user = new TblUser();
+
         password = userDAO.storePassword(password);
         user = userDAO.checkLogin(userName, password);
         return user;
@@ -86,6 +87,7 @@ public class ChatController {
     public @ResponseBody TblMessage getLastMessage(@RequestParam("user_id") int user_id,
             @RequestParam("sender_id") int sender_id) {
         TblMessage message = userDAO.getLastMessage(user_id, sender_id);
+
         return message;
     }
 
