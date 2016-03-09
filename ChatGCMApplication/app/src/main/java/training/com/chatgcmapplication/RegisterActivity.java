@@ -57,43 +57,37 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void createUser(String username, String password, String regId) {
-//        DatabaseHelper databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
-//        Users user = databaseHelper.getUser(username);
-//        if (user.getUserName() == null) {
-//            if (password.length() < 6) {
-//                Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
-//            } else {
-//                password = databaseHelper.storePassword(password);
-//                user = new Users();
-//                user.setUserName(username);
-//                user.setPassword(password);
-//                user.setRegistrationId(regId);
-//                databaseHelper.addUser(user);
-//                Toast.makeText(getApplicationContext(), "Successful!", Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-//                startActivity(intent);
-//            }
-//        } else {
-//            Toast.makeText(getApplicationContext(), "Your username is already exist", Toast.LENGTH_SHORT).show();
-//        }
-        RetrofitGenerator retrofitGenerator = new RetrofitGenerator();
         Retrofit retrofit = new Retrofit.Builder().
                 baseUrl(AppConfig.BASE_URL).
                 addConverterFactory(GsonConverterFactory.create()).build();
         RESTDatabaseDAO service = retrofit.create(RESTDatabaseDAO.class);
-        Call<Users> userCall = service.regist(username, password, regId);
-        userCall.enqueue(new Callback<Users>() {
-            @Override
-            public void onResponse(Call<Users> call, Response<Users> response) {
+        if (username.length() < 4) {
+            Toast.makeText(getApplicationContext(), "username must be more than 4 character", Toast.LENGTH_SHORT).show();
+        } else {
+            if (password.length() < 6) {
+                Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
+            } else {
+                Call<String> userCall = service.regist(username, password, regId);
+                userCall.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        String rf = response.toString();
+                        if (rf.equals("successful")) {
+                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.e("FAIL","SOMETHING WRONG MAN ! \n"+t);
+                    }
+                });
             }
-
-            @Override
-            public void onFailure(Call<Users> call, Throwable t) {
-
-            }
-        });
-
+        }
     }
 
     private void doRegister(final String username, final String password) {
