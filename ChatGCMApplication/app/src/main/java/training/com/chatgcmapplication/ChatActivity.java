@@ -33,9 +33,16 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.adapter.MessageAdapter;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitGenerator;
 import training.com.common.TimeUtil;
+import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
 import training.com.model.Message;
 import training.com.services.MessageSender;
@@ -57,6 +64,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.listMessage)
     ListView lv_message;
+    private RetrofitGenerator retrofitGenerator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +149,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 message = txt_chat.getText().toString();
                 if (!message.equals("")) {
 
-
                     databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
                     mgsSender = new MessageSender();
                     new AsyncTask<Void, Void, Void>() {
@@ -152,8 +159,29 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             return null;
                         }
                     }.execute();
-                    databaseHelper.addMessage(message, timeUtil.getCurrentTime(), userId, AppConfig.USER_ID);
                     txt_chat.setText("");
+                    Retrofit client = new Retrofit.Builder()
+                            .baseUrl(AppConfig.BASE_URL)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+
+                    RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
+                    Call<Void> call = service.addMessage(message, userId, AppConfig.USER_ID);
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            if (response.isSuccess()) {
+                                Log.i("Success", "Good " + response.message());
+                            } else {
+                                Log.i("Success", "Not good " + response.raw());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Log.i("Fail", "Failure " + t.toString());
+                        }
+                    });
                     try {
                         Message messageObj = new Message();
                         messageObj.setMessage(message);
@@ -218,7 +246,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         Log.i("date time", tvInfo.getText().toString());
     }
 
-    private void showEmoji(String emoji){
+    private void showEmoji(String emoji) {
         txt_chat.setText(txt_chat.getText().toString() + emoji);
         txt_chat.setSelection(txt_chat.getText().length());
     }

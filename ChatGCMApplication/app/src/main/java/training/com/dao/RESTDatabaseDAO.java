@@ -23,7 +23,7 @@ public interface RESTDatabaseDAO {
                                  @Query("sender_id") int sender_id);
 
     @GET("addmessage")
-    Call<Message> addMessage(@Query("content") String content,
+    Call<Void> addMessage(@Query("content") String content,
                              @Query("user_id") int user_id,
                              @Query("sender_id") int sender_id);
 
