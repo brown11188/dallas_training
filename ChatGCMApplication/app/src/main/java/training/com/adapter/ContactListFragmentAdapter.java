@@ -90,7 +90,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
 
         Retrofit client = new Retrofit.Builder()
                 .baseUrl(AppConfig.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(retrofitGenerator.gsonDateGenerator()))
+                .addConverterFactory(GsonConverterFactory.create(retrofitGenerator.gsonDateDeserializerGenerator()))
                 .build();
 
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);

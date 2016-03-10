@@ -55,11 +55,7 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
         list_contact = (ListView) rootView.findViewById(R.id.list_contact);
         list_contact.setOnItemClickListener(this);
         retrofitGenerator = new RetrofitGenerator();
-        Retrofit client = new Retrofit.Builder()
-                .baseUrl(AppConfig.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
+        Retrofit client = retrofitGenerator.createRetrofit();
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
 
         Call<ArrayList<Users>> call = service.getUsers(AppConfig.USER_NAME);

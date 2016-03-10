@@ -74,7 +74,7 @@ public class UserDAOImp implements UserDAO {
     }
 
     @Override
-    public void addMessage(String message, Date expires_date, int user_id, int sender_id) {
+    public boolean addMessage(String message, Date expires_date, int user_id, int sender_id) {
         Session session = this.sessionFactory.openSession();
         Transaction tx = session.beginTransaction();
         TblMessage messageObj = new TblMessage();
@@ -82,8 +82,12 @@ public class UserDAOImp implements UserDAO {
         messageObj.setExpiresTime(expires_date);
         messageObj.setUserId(user_id);
         messageObj.setSenderId(sender_id);
-        session.persist(messageObj);
-        tx.commit();
+        if (messageObj != null) {
+            session.persist(messageObj);
+            tx.commit();
+            return true;
+        }
+        return false;
 
     }
 
