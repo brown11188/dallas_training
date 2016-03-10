@@ -1,30 +1,22 @@
 package training.com.chatgcmapplication;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.DataSetObserver;
-import android.media.Image;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -33,13 +25,10 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.adapter.MessageAdapter;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitCallBackUtil;
 import training.com.common.RetrofitGenerator;
 import training.com.common.TimeUtil;
 import training.com.dao.RESTDatabaseDAO;
@@ -65,6 +54,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.listMessage)
     ListView lv_message;
     private RetrofitGenerator retrofitGenerator;
+    private RetrofitCallBackUtil retrofitCallBackUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +70,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         swipeRefreshLayout.setOnRefreshListener(this);
         lv_message.setOnItemClickListener(this);
         timeUtil = new TimeUtil();
+        retrofitGenerator = new RetrofitGenerator();
+        retrofitCallBackUtil = new RetrofitCallBackUtil();
         databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
         btn_send.setOnClickListener(this);
         Bundle bundle = getIntent().getExtras();
@@ -155,30 +147,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         protected Void doInBackground(Void... params) {
                             MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
-
-                            if(mgsSender.sendPost(mgsContent)){
-                                Retrofit client = new Retrofit.Builder()
-                                        .baseUrl(AppConfig.BASE_URL)
-                                        .addConverterFactory(GsonConverterFactory.create())
-                                        .build();
-
-                                RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
-                                Call<Void> call = service.addMessage(message, userId, AppConfig.USER_ID);
-                                call.enqueue(new Callback<Void>() {
-                                    @Override
-                                    public void onResponse(Call<Void> call, Response<Void> response) {
-                                        if (response.isSuccess()) {
-                                            Log.i("Success", "Good " + response.message());
-                                        } else {
-                                            Log.i("Success", "Not good " + response.raw());
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<Void> call, Throwable t) {
-                                        Log.i("Fail", "Failure " + t.toString());
-                                    }
-                                });
+                            Retrofit client = retrofitGenerator.createRetrofit();
+                            RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
+                            if (mgsSender.sendPost(mgsContent)) {
+                                retrofitCallBackUtil.addMessageToServer(message, userId, service);
                             }
                             return null;
                         }
@@ -253,5 +225,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat.setText(txt_chat.getText().toString() + emoji);
         txt_chat.setSelection(txt_chat.getText().length());
     }
-    
+
+
 }
