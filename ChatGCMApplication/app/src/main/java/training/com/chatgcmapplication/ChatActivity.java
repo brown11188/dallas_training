@@ -142,7 +142,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     @OnClick({R.id.btn_send, R.id.cryImg, R.id.smileImg, R.id.sadImg, R.id.angryImg})
     @Override
     public void onClick(View v) {
-        String message;
+        final String message;
         switch (v.getId()) {
             case R.id.btn_send:
 
@@ -155,33 +155,36 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         protected Void doInBackground(Void... params) {
                             MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
-                            mgsSender.sendPost(mgsContent);
+
+                            if(mgsSender.sendPost(mgsContent)){
+                                Retrofit client = new Retrofit.Builder()
+                                        .baseUrl(AppConfig.BASE_URL)
+                                        .addConverterFactory(GsonConverterFactory.create())
+                                        .build();
+
+                                RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
+                                Call<Void> call = service.addMessage(message, userId, AppConfig.USER_ID);
+                                call.enqueue(new Callback<Void>() {
+                                    @Override
+                                    public void onResponse(Call<Void> call, Response<Void> response) {
+                                        if (response.isSuccess()) {
+                                            Log.i("Success", "Good " + response.message());
+                                        } else {
+                                            Log.i("Success", "Not good " + response.raw());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Void> call, Throwable t) {
+                                        Log.i("Fail", "Failure " + t.toString());
+                                    }
+                                });
+                            }
                             return null;
                         }
                     }.execute();
                     txt_chat.setText("");
-                    Retrofit client = new Retrofit.Builder()
-                            .baseUrl(AppConfig.BASE_URL)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
 
-                    RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
-                    Call<Void> call = service.addMessage(message, userId, AppConfig.USER_ID);
-                    call.enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            if (response.isSuccess()) {
-                                Log.i("Success", "Good " + response.message());
-                            } else {
-                                Log.i("Success", "Not good " + response.raw());
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
-                            Log.i("Fail", "Failure " + t.toString());
-                        }
-                    });
                     try {
                         Message messageObj = new Message();
                         messageObj.setMessage(message);
@@ -250,4 +253,5 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat.setText(txt_chat.getText().toString() + emoji);
         txt_chat.setSelection(txt_chat.getText().length());
     }
+    
 }

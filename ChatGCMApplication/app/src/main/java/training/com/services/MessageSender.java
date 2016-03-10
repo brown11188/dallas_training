@@ -18,7 +18,10 @@ import training.com.common.AppConfig;
  * Created by hawk on 29/01/2016.
  */
 public class MessageSender {
-    public void sendPost(MessageSenderContent content) {
+    private int responseCode;
+
+
+    public boolean sendPost(MessageSenderContent content) {
 
         HttpURLConnection connection;
         try {
@@ -39,10 +42,16 @@ public class MessageSender {
             dataOutputStream.flush();
             dataOutputStream.close();
 
-            int responseCode = connection.getResponseCode();
-            Log.i("Request Status", "This is response status from server: " + responseCode);
+            responseCode = connection.getResponseCode();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        if (responseCode == 200) {
+            Log.i("Request Status", "This is success response status from server: " + responseCode);
+            return true;
+        } else {
+            Log.i("Request Status", "This is failure response status from server: " + responseCode);
+            return false;
         }
     }
 }
