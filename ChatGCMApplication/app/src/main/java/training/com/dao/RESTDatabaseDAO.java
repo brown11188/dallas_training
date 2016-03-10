@@ -24,7 +24,6 @@ public interface RESTDatabaseDAO {
 
     @GET("addmessage")
     Call<Message> addMessage(@Query("content") String content,
-                             @Query("expires_time")Date expires_time,
                              @Query("user_id") int user_id,
                              @Query("sender_id") int sender_id);
 
