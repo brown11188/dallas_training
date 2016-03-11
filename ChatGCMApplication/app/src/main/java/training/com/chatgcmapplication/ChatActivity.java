@@ -20,19 +20,19 @@ import android.widget.TextView;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.adapter.MessageAdapter;
 import training.com.common.AppConfig;
 import training.com.common.RetrofitCallBackUtil;
 import training.com.common.RetrofitGenerator;
 import training.com.common.TimeUtil;
 import training.com.dao.RESTDatabaseDAO;
-import training.com.database.DatabaseHelper;
+import training.com.dao.RetrofitResponseCallBack;
 import training.com.model.Message;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
@@ -40,10 +40,8 @@ import training.com.services.MessageSenderContent;
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private static EditText txt_chat;
     private String registId;
-    private String chatTitle;
     private MessageSender mgsSender;
     private int userId;
-    private DatabaseHelper databaseHelper;
     private TimeUtil timeUtil;
     private MessageAdapter messageAdapter;
     private int offsetNumber = 5;
@@ -55,6 +53,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     ListView lv_message;
     private RetrofitGenerator retrofitGenerator;
     private RetrofitCallBackUtil retrofitCallBackUtil;
+    private RESTDatabaseDAO service;
+    private static final int OFFSET_NUMBER_DEFAULT = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +72,14 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         timeUtil = new TimeUtil();
         retrofitGenerator = new RetrofitGenerator();
         retrofitCallBackUtil = new RetrofitCallBackUtil();
-        databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
+        Retrofit client = new Retrofit.Builder()
+                .baseUrl(AppConfig.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(retrofitGenerator.gsonDateDeserializerGenerator()))
+                .build();
+        service = client.create(RESTDatabaseDAO.class);
         btn_send.setOnClickListener(this);
         Bundle bundle = getIntent().getExtras();
-        chatTitle = bundle.getString("titleName");
+        String chatTitle = bundle.getString("titleName");
         if (getIntent().getBundleExtra("INFO") != null) {
             chatTitle = getIntent().getBundleExtra("INFO").getString("name");
             this.setTitle(chatTitle);
@@ -83,11 +87,21 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             this.setTitle(chatTitle);
         }
         registId = bundle.getString("regId");
-        userId = databaseHelper.getUser(chatTitle).getUserId();
-        List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), 0);
-        messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, (ArrayList<Message>) messages);
-        LocalBroadcastManager.getInstance(this).registerReceiver(onNotice, new IntentFilter("Msg"));
-        if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+        userId = bundle.getInt("userId");
+        retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT, service, new RetrofitResponseCallBack() {
+            @Override
+            public void onSuccess(ArrayList<Message> messages) {
+                messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
+                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
+                if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -140,8 +154,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
                 message = txt_chat.getText().toString();
                 if (!message.equals("")) {
-
-                    databaseHelper = DatabaseHelper.getInstance(getApplicationContext());
                     mgsSender = new MessageSender();
                     new AsyncTask<Void, Void, Void>() {
                         @Override
@@ -198,8 +210,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             protected Void doInBackground(Void... params) {
-                List<Message> messages = databaseHelper.getLastTenMessages(AppConfig.USER_ID, databaseHelper.getUser(chatTitle).getUserId(), offsetNumber);
-                messageAdapter.insertToTheFirst(messages);
+                retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, offsetNumber, service, new RetrofitResponseCallBack() {
+                    @Override
+                    public void onSuccess(ArrayList<Message> messages) {
+                        messageAdapter.insertToTheFirst(messages);
+                    }
+
+                    @Override
+                    public void onFailure() {
+
+                    }
+                });
                 offsetNumber += 5;
                 return null;
             }
@@ -218,7 +239,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TextView tvInfo = (TextView) view.findViewById(R.id.txtInfo);
         tvInfo.setVisibility(View.VISIBLE);
-        Log.i("date time", tvInfo.getText().toString());
     }
 
     private void showEmoji(String emoji) {

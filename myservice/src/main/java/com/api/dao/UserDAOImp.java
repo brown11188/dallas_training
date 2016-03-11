@@ -161,10 +161,15 @@ public class UserDAOImp implements UserDAO {
     @Override
     public List<TblMessage> getLastTenMessages(int user_id, int sender_id, int offsetNumber) {
         Session session = this.sessionFactory.openSession();
-        String queryString = "select * from (select * from tbl_message where (user_id=1 and sender_id=2) or (user_id=2 and sender_id=1)  order by message_id desc limit 10 offset 0 ) as temp order by temp.message_id asc";
+        Transaction tx = session.beginTransaction();
+        String queryString = "select * from (select * from tbl_message where (user_id= " + user_id + "  and sender_id= "
+                + sender_id + ") or (user_id= " + sender_id + " and sender_id= " + user_id
+                + ")  order by message_id desc limit 10 offset " + offsetNumber
+                + " ) as temp order by temp.message_id asc";
         SQLQuery sql = session.createSQLQuery(queryString);
         sql.addEntity("tbl_message", TblMessage.class);
         List<TblMessage> messages = sql.list();
+        tx.commit();
         if (messages.size() > 0) {
             return messages;
         } else {

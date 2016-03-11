@@ -87,9 +87,9 @@ public class ContactFragment extends Fragment implements AdapterView.OnItemClick
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent chatIntent = new Intent(getActivity(), ChatActivity.class);
 
-        chatIntent.putExtra("regId", databaseHelper.getUsers().get(position).getRegistrationId());
-        chatIntent.putExtra("titleName", databaseHelper.getUsers().get(position).getUserName());
-        chatIntent.putExtra("userId", databaseHelper.getUsers().get(position).getUserId());
+        chatIntent.putExtra("regId", users.get(position).getRegistrationId());
+        chatIntent.putExtra("titleName", users.get(position).getUserName());
+        chatIntent.putExtra("userId", users.get(position).getUserId());
         chatIntent.putExtra("name", AppConfig.USER_NAME);
         startActivity(chatIntent);
     }
