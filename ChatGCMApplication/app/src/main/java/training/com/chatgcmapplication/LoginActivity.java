@@ -16,6 +16,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitCallBackUtil;
 import training.com.common.RetrofitGenerator;
 import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
@@ -25,6 +26,7 @@ import training.com.services.RegistrationIdManager;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText name;
     private EditText pass;
+    private RetrofitCallBackUtil retrofitCallBackUtil = new RetrofitCallBackUtil();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +54,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onBackPressed() {
 
     }
-
-    private void saveUser(Users user) {
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("userId", user.getUserId());
-        editor.putString("userName", user.getUserName());
-        editor.putString("registration_id", user.getRegistrationId());
-        editor.apply();
-    }
+//
+//    private void saveUser(Users user) {
+//        SharedPreferences preferences = getApplicationContext().getSharedPreferences("loginPref", MODE_PRIVATE);
+//        SharedPreferences.Editor editor = preferences.edit();
+//        editor.putInt("userId", user.getUserId());
+//        editor.putString("userName", user.getUserName());
+//        editor.putString("registration_id", user.getRegistrationId());
+//        editor.apply();
+//    }
 
     private void doLogin(String userName, String password) {
         RetrofitGenerator retrofitGenerator = new RetrofitGenerator();
@@ -68,24 +70,31 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 baseUrl(AppConfig.BASE_URL).
                 addConverterFactory(GsonConverterFactory.create()).build();
         RESTDatabaseDAO service = retrofit.create(RESTDatabaseDAO.class);
-        Call<Users> callUser =  service.getUser(userName, password);
-        callUser.enqueue(new Callback<Users>() {
-            @Override
-            public void onResponse(Call<Users> call, Response<Users> response) {
-                if(response.isSuccess()){
-                    Users user = response.body();
-                    saveUser(user);
-                    Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
-                    startActivity(intent);
-                }else {
-                    Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onFailure(Call<Users> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Please, check your internet connection", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        Call<Users> callUser =  service.getUser(userName, password);
+//        callUser.enqueue(new Callback<Users>() {
+//            @Override
+//            public void onResponse(Call<Users> call, Response<Users> response) {
+//                if(response.isSuccess()){
+//                    Users user = response.body();
+//                    saveUser(user);
+//                    Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
+//                    startActivity(intent);
+//                }else {
+//                    Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//            @Override
+//            public void onFailure(Call<Users> call, Throwable t) {
+//                Toast.makeText(getApplicationContext(), "Please, check your internet connection", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+       boolean check = retrofitCallBackUtil.login(userName, password, service, getApplicationContext());
+        if (check) {
+            Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
+            startActivity(intent);
+        } else {
+            Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
+        }
 
     }
 

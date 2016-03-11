@@ -24,6 +24,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitCallBackUtil;
 import training.com.common.RetrofitGenerator;
 import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
@@ -71,28 +72,30 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             if (password.length() < 6) {
                 Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
             } else {
-                Call<ResponseBody> userCall = service.regist(username, password, regId);
-                userCall.enqueue(new Callback<ResponseBody>() {
-
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        String rf = null;
-
-                        rf = response.body().toString();
-                        if (rf.equals("successful")) {
-                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        Log.i("test", String.valueOf(t));
-                    }
-                });
+//                Call<ResponseBody> userCall = service.regist(username, password, regId);
+//                userCall.enqueue(new Callback<ResponseBody>() {
+//
+//                    @Override
+//                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                        String rf = null;
+//
+//                        rf = response.body().toString();
+//                        if (rf.equals("successful")) {
+//                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
+//                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+//                            startActivity(intent);
+//                        } else {
+//                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                        Log.i("test", String.valueOf(t));
+//                    }
+//                });
+                RetrofitCallBackUtil retrofitCallBackUtil = new RetrofitCallBackUtil();
+                retrofitCallBackUtil.addNewUser(username,password,regId,service);
             }
         }
     }
