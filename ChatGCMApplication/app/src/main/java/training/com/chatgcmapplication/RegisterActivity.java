@@ -1,14 +1,20 @@
 package training.com.chatgcmapplication;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.squareup.okhttp.ResponseBody;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -52,8 +58,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         getUsername = userName.getText().toString();
         getPassword = password.getText().toString();
         doRegister(getUsername, getPassword);
-
-
     }
 
     private void createUser(String username, String password, String regId) {
@@ -67,11 +71,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             if (password.length() < 6) {
                 Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
             } else {
-                Call<String> userCall = service.regist(username, password, regId);
-                userCall.enqueue(new Callback<String>() {
+                Call<ResponseBody> userCall = service.regist(username, password, regId);
+                userCall.enqueue(new Callback<ResponseBody>() {
+
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        String rf = response.toString();
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        String rf = null;
+
+                        rf = response.body().toString();
                         if (rf.equals("successful")) {
                             Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -82,8 +89,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.e("FAIL","SOMETHING WRONG MAN ! \n"+t);
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.i("test", String.valueOf(t));
                     }
                 });
             }

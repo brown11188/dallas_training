@@ -1,5 +1,7 @@
 package training.com.dao;
 
+import com.squareup.okhttp.ResponseBody;
+
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -37,7 +39,7 @@ public interface RESTDatabaseDAO {
     Call<Users> getUser(@Query("userName") String username,
                         @Query("password") String password);
     @GET("add")
-    Call<String> regist(@Query("userName") String username,
+    Call<ResponseBody> regist(@Query("userName") String username,
                        @Query("password") String password,
                        @Query("registrationId") String registration_id);
 

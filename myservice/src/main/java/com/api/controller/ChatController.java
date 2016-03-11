@@ -4,7 +4,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.map.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +20,7 @@ import com.api.model.TblUser;
 
 @Controller
 public class ChatController {
+
 
     @Autowired
     UserDAOImp userDAO;
@@ -62,6 +65,7 @@ public class ChatController {
             @RequestParam("password") String password, @RequestParam("registrationId") String registrationId) {
         TblUser user = new TblUser();
         user.setUserName(userName);
+        password = userDAO.storePassword(password);
         user.setPassword(password);
         user.setRegistrationId(registrationId);
         if (userDAO.addUser(user) == true) {
