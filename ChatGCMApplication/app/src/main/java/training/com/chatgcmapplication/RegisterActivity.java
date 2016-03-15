@@ -49,16 +49,27 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         password = (EditText) findViewById(R.id.txt_password_register);
 
         Button btnRegist = (Button) findViewById(R.id.btn_register);
+        Button btnLogin = (Button) findViewById(R.id.btn_LinkToLoginScreen);
 
         btnRegist.setOnClickListener(this);
+        btnLogin.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        getUsername = userName.getText().toString();
-        getPassword = password.getText().toString();
-        doRegister(getUsername, getPassword);
+        switch (v.getId()) {
+            case R.id.btn_register:
+                getUsername = userName.getText().toString();
+                getPassword = password.getText().toString();
+                doRegister(getUsername, getPassword);
+                break;
+            case R.id.btn_LinkToLoginScreen:
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                break;
+        }
+
     }
 
     private void createUser(String username, String password, String regId) {
@@ -72,30 +83,30 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             if (password.length() < 6) {
                 Toast.makeText(getApplicationContext(), "password must be more than 6 character", Toast.LENGTH_SHORT).show();
             } else {
-//                Call<ResponseBody> userCall = service.regist(username, password, regId);
-//                userCall.enqueue(new Callback<ResponseBody>() {
-//
-//                    @Override
-//                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-//                        String rf = null;
-//
-//                        rf = response.body().toString();
-//                        if (rf.equals("successful")) {
-//                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
-//                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-//                            startActivity(intent);
-//                        } else {
-//                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                        Log.i("test", String.valueOf(t));
-//                    }
-//                });
-                RetrofitCallBackUtil retrofitCallBackUtil = new RetrofitCallBackUtil();
-                retrofitCallBackUtil.addNewUser(username,password,regId,service);
+                Call<ResponseBody> userCall = service.regist(username, password, regId);
+                userCall.enqueue(new Callback<ResponseBody>() {
+
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        String rf = null;
+
+                        rf = response.body().toString();
+                        if (rf.equals("successful")) {
+                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(getApplicationContext(), rf, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.i("test", String.valueOf(t));
+                    }
+                });
+//                RetrofitCallBackUtil retrofitCallBackUtil = new RetrofitCallBackUtil();
+//                retrofitCallBackUtil.addNewUser(username,password,regId,service);
             }
         }
     }
