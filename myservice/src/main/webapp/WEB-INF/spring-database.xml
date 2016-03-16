@@ -12,7 +12,7 @@
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://192.168.10.148:3306/db_chat" />
+		<property name="url" value="jdbc:mysql://192.168.10.147:3306/db_chat" />
 		<property name="username" value="huy" />
 		<property name="password" value="123456" />
 	</bean>

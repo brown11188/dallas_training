@@ -52,7 +52,7 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         this.context = context;
         this.listContact = listContact;
         databaseHelper = DatabaseHelper.getInstance(context);
-        retrofitGenerator =  new RetrofitGenerator();
+        retrofitGenerator = new RetrofitGenerator();
     }
 
     @Override
@@ -87,7 +87,6 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         final Users objectItem = listContact.get(position);
 
 
-
         Retrofit client = new Retrofit.Builder()
                 .baseUrl(AppConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(retrofitGenerator.gsonDateDeserializerGenerator()))
@@ -95,26 +94,39 @@ public class ContactListFragmentAdapter extends BaseAdapter {
 
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
 
-        Call<Message> call = service.getLastMessage(objectItem.getUserId(), AppConfig.USER_ID);
-        call.enqueue(new Callback<Message>() {
+        final Call<Message> call = service.getLastMessage(objectItem.getUserId(), AppConfig.USER_ID);
+
+        Thread thread = new Thread(new Runnable() {
             @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccess()) {
-                    Message message = response.body();
-                    Log.i("In retrofit method success message", response.body().getExpiresTime().toString().trim());
-                    viewHolder.tv_lastMessage.setText(message.getMessage());
-                } else {
-                    Log.i("In retrofit method failure", response.body() + "");
+            public void run() {
+                try {
+                    viewHolder.tv_lastMessage.setText(call.execute().body().getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-                Log.i("In retrofit method failure message", t.toString());
-            }
-
-
         });
+        thread.start();
+
+//        call.enqueue(new Callback<Message>() {
+//            @Override
+//            public void onResponse(Call<Message> call, Response<Message> response) {
+//                if (response.isSuccess()) {
+//                    Message message = response.body();
+//                    Log.i("In retrofit method success message", response.body().getExpiresTime().toString().trim());
+//
+//                } else {
+//                    Log.i("In retrofit method failure", response.body() + "");
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Message> call, Throwable t) {
+//                Log.i("In retrofit method failure message", t.toString());
+//            }
+//
+//
+//        });
         viewHolder.tv_userName.setText(objectItem.getUserName());
         return convertView;
     }

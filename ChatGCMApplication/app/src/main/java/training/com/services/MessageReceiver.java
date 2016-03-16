@@ -30,7 +30,8 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
         broadcastIntent.putExtra("name", name);
         Retrofit client = retrofitGenerator.createRetrofit();
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
-        retrofitCallBackUtil.addMessageToServerRetrofit(message, retrofitCallBackUtil.getUserByNameRetrofit(name, service), service);
+        int userId = retrofitCallBackUtil.getUserByNameRetrofit(name, service);
+        retrofitCallBackUtil.addMessageToServerRetrofit(message, userId, service);
         LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
         Intent gcmIntent = new Intent(context, MessageService.class);
         gcmIntent.putExtras(intent.getExtras());

@@ -10,7 +10,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -18,12 +17,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.adapter.MessageAdapter;
@@ -88,20 +89,35 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         registId = bundle.getString("regId");
         userId = bundle.getInt("userId");
-        retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT, service, new RetrofitResponseCallBack() {
+        final Call<ArrayList<Message>> call = service.getLastTenMessage(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT);
+        Thread thread =  new Thread(new Runnable() {
             @Override
-            public void onSuccess(ArrayList<Message> messages) {
-                messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
-                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
-                if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
-            }
-
-            @Override
-            public void onFailure() {
-
+            public void run() {
+                try {
+                    ArrayList<Message> messages = call.execute().body();
+                    messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
+                    if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
+        thread.start();
 
+//        retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT, service, new RetrofitResponseCallBack() {
+//            @Override
+//            public void onSuccess(ArrayList<Message> messages) {
+//                messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
+//                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
+//                if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+//            }
+//
+//            @Override
+//            public void onFailure() {
+//
+//            }
+//        });
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {

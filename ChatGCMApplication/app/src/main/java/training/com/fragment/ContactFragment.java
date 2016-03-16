@@ -40,21 +40,17 @@ import training.com.model.Users;
  */
 public class ContactFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    private DatabaseHelper databaseHelper;
     private ArrayList<Users> users = new ArrayList<>();
     private ContactListFragmentAdapter contactsAdapter;
     private  ListView list_contact;
-    private RetrofitGenerator retrofitGenerator;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        databaseHelper = DatabaseHelper.getInstance(getActivity().getApplicationContext());
-
         View rootView = inflater.inflate(R.layout.list_contact, container, false);
         list_contact = (ListView) rootView.findViewById(R.id.list_contact);
         list_contact.setOnItemClickListener(this);
-        retrofitGenerator = new RetrofitGenerator();
+        RetrofitGenerator retrofitGenerator = new RetrofitGenerator();
         Retrofit client = retrofitGenerator.createRetrofit();
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
 
