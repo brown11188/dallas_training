@@ -68,6 +68,7 @@ public class UserDAOImp implements UserDAO {
             session.close();
             return true;
         } catch (Exception e) {
+        	session.close();
             return false;
         }
 
@@ -85,8 +86,10 @@ public class UserDAOImp implements UserDAO {
         if (messageObj != null) {
             session.persist(messageObj);
             tx.commit();
+            session.close();
             return true;
         }
+        session.close();
         return false;
 
     }
@@ -97,6 +100,7 @@ public class UserDAOImp implements UserDAO {
         Session session = this.sessionFactory.openSession();
         List<TblUser> users = new ArrayList<TblUser>();
         users = session.createQuery("from TblUser where userName != ?").setParameter(0, userName).list();
+        session.close();
         return users;
     }
 
@@ -108,8 +112,10 @@ public class UserDAOImp implements UserDAO {
         List<TblUser> users = new ArrayList<TblUser>();
         users = session.createQuery("from TblUser where userName = ?").setParameter(0, username).list();
         if (users.size() > 0) {
+        	session.close();
             return users.get(0);
         } else {
+        	session.close();
             return null;
         }
     }
@@ -121,8 +127,10 @@ public class UserDAOImp implements UserDAO {
         List<TblUser> users = new ArrayList<TblUser>();
         users = session.createQuery("from TblUser where userId = ?").setParameter(0, user_id).list();
         if (users.size() > 0) {
+        	session.close();
             return users.get(0);
         } else {
+        	session.close();
             return null;
         }
     }
@@ -135,8 +143,10 @@ public class UserDAOImp implements UserDAO {
                 .createQuery("from TblMessage where ( user_id = ? and sender_id =? ) or (user_id=? and sender_id =?) ")
                 .setInteger(0, user_id).setInteger(1, sender_id).setInteger(2, sender_id).setInteger(3, user_id).list();
         if (messages.size() > 0) {
+        	session.close();
             return messages;
         } else {
+        	session.close();
             return null;
         }
 
@@ -151,8 +161,10 @@ public class UserDAOImp implements UserDAO {
                 .setInteger(0, user_id).setInteger(1, sender_id).setInteger(2, sender_id).setInteger(3, user_id)
                 .setMaxResults(1).uniqueResult();
         if (message != null) {
+        	session.close();
             return message;
         } else {
+        	session.close();
             return null;
         }
     }
@@ -171,8 +183,10 @@ public class UserDAOImp implements UserDAO {
         List<TblMessage> messages = sql.list();
         tx.commit();
         if (messages.size() > 0) {
+        	session.close();
             return messages;
         } else {
+        	session.close();
             return null;
         }
     }
