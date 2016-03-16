@@ -24,6 +24,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.common.AppConfig;
+import training.com.common.RetrofitCallBackUtil;
 import training.com.common.RetrofitGenerator;
 import training.com.dao.RESTDatabaseDAO;
 import training.com.database.DatabaseHelper;
@@ -48,16 +49,27 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         password = (EditText) findViewById(R.id.txt_password_register);
 
         Button btnRegist = (Button) findViewById(R.id.btn_register);
+        Button btnLogin = (Button) findViewById(R.id.btn_LinkToLoginScreen);
 
         btnRegist.setOnClickListener(this);
+        btnLogin.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        getUsername = userName.getText().toString();
-        getPassword = password.getText().toString();
-        doRegister(getUsername, getPassword);
+        switch (v.getId()) {
+            case R.id.btn_register:
+                getUsername = userName.getText().toString();
+                getPassword = password.getText().toString();
+                doRegister(getUsername, getPassword);
+                break;
+            case R.id.btn_LinkToLoginScreen:
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                break;
+        }
+
     }
 
     private void createUser(String username, String password, String regId) {
@@ -93,6 +105,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         Log.i("test", String.valueOf(t));
                     }
                 });
+//                RetrofitCallBackUtil retrofitCallBackUtil = new RetrofitCallBackUtil();
+//                retrofitCallBackUtil.addNewUser(username,password,regId,service);
             }
         }
     }
