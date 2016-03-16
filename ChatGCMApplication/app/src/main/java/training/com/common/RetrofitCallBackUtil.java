@@ -47,7 +47,7 @@ public class RetrofitCallBackUtil {
 
     public void addMessageToServerRetrofit(String message, int user_id, RESTDatabaseDAO service) {
 
-        Call<Void> callMessage = service.addMessage(message, AppConfig.USER_ID, user_id);
+        Call<Void> callMessage = service.addMessage(message, user_id, AppConfig.USER_ID);
         callMessage.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {

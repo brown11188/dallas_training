@@ -35,7 +35,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private EditText userName;
     private EditText password;
     private String regId;
-    private RegistrationIdManager registrationIdManager;
     private DatabaseHelper databaseHelper;
     String getUsername;
     String getPassword;
@@ -112,7 +111,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void doRegister(final String username, final String password) {
-        registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
+        RegistrationIdManager registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
         registrationIdManager.registerIfNeeded(new RegistrationIdManager.RegistrationCompletedHandler() {
             @Override
             public void onSuccess(String registrationId, boolean isNewRegistration) {
