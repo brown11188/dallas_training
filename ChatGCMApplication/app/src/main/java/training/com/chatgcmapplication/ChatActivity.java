@@ -18,14 +18,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import training.com.adapter.MessageAdapter;
@@ -36,10 +34,11 @@ import training.com.common.TimeUtil;
 import training.com.dao.RESTDatabaseDAO;
 import training.com.dao.RetrofitResponseCallBack;
 import training.com.model.Message;
+import training.com.model.Users;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, RetrofitResponseCallBack {
     private static EditText txt_chat;
     private String registId;
     private MessageSender mgsSender;
@@ -90,35 +89,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         registId = bundle.getString("regId");
         userId = bundle.getInt("userId");
-        final Call<ArrayList<Message>> call = service.getLastTenMessage(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT);
-        Thread thread =  new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ArrayList<Message> messages = call.execute().body();
-                    messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
-                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
-                    if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-
-//        retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT, service, new RetrofitResponseCallBack() {
-//            @Override
-//            public void onSuccess(ArrayList<Message> messages) {
-//                messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
-//                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
-//                if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
-//            }
-//
-//            @Override
-//            public void onFailure() {
-//
-//            }
-//        });
+        retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT, service, this);
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -179,7 +150,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             Retrofit client = retrofitGenerator.createRetrofit();
                             RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
                             if (mgsSender.sendPost(mgsContent)) {
-                                retrofitCallBackUtil.addMessageToServer(message, userId, service);
+                                retrofitCallBackUtil.addMessageToServer(message, userId, AppConfig.USER_ID, service);
                             }
                             return null;
                         }
@@ -227,10 +198,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             protected Void doInBackground(Void... params) {
+//                retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, offsetNumber, service, ChatActivity.this);
                 retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, offsetNumber, service, new RetrofitResponseCallBack() {
+
                     @Override
-                    public void onSuccess(ArrayList<Message> messages) {
+                    public void onSuccessMessages(ArrayList<Message> messages) {
                         messageAdapter.insertToTheFirst(messages);
+                    }
+
+                    @Override
+                    public void onSuccessUser(Users user) {
+
                     }
 
                     @Override
@@ -263,5 +241,22 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         txt_chat.setSelection(txt_chat.getText().length());
     }
 
+
+    @Override
+    public void onSuccessMessages(ArrayList<Message> messages) {
+        messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
+        if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+    }
+
+    @Override
+    public void onSuccessUser(Users user) {
+
+    }
+
+    @Override
+    public void onFailure() {
+
+    }
 
 }

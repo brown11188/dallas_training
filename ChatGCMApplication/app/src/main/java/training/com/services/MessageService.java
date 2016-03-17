@@ -3,20 +3,12 @@ package training.com.services;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import training.com.chatgcmapplication.ChatActivity;
 import training.com.chatgcmapplication.R;

@@ -9,22 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,7 +20,6 @@ import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
 import training.com.common.RetrofitGenerator;
 import training.com.dao.RESTDatabaseDAO;
-import training.com.database.DatabaseHelper;
 import training.com.model.Message;
 import training.com.model.Users;
 
@@ -45,13 +29,11 @@ import training.com.model.Users;
 public class ContactListFragmentAdapter extends BaseAdapter {
     private Context context;
     private ArrayList<Users> listContact;
-    private DatabaseHelper databaseHelper;
     private RetrofitGenerator retrofitGenerator;
 
     public ContactListFragmentAdapter(Context context, ArrayList<Users> listContact) {
         this.context = context;
         this.listContact = listContact;
-        databaseHelper = DatabaseHelper.getInstance(context);
         retrofitGenerator = new RetrofitGenerator();
     }
 
@@ -95,38 +77,25 @@ public class ContactListFragmentAdapter extends BaseAdapter {
         RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
 
         final Call<Message> call = service.getLastMessage(objectItem.getUserId(), AppConfig.USER_ID);
-
-        Thread thread = new Thread(new Runnable() {
+        call.enqueue(new Callback<Message>() {
             @Override
-            public void run() {
-                try {
-                    viewHolder.tv_lastMessage.setText(call.execute().body().getMessage());
-                } catch (IOException e) {
-                    e.printStackTrace();
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccess()) {
+                    viewHolder.tv_lastMessage.setText(response.body().getMessage());
+                    Log.i("In retrofit method success message", response.body().getExpiresTime().toString().trim());
+
+                } else {
+                    Log.i("In retrofit method failure", response.body() + "");
                 }
             }
-        });
-        thread.start();
 
-//        call.enqueue(new Callback<Message>() {
-//            @Override
-//            public void onResponse(Call<Message> call, Response<Message> response) {
-//                if (response.isSuccess()) {
-//                    Message message = response.body();
-//                    Log.i("In retrofit method success message", response.body().getExpiresTime().toString().trim());
-//
-//                } else {
-//                    Log.i("In retrofit method failure", response.body() + "");
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Message> call, Throwable t) {
-//                Log.i("In retrofit method failure message", t.toString());
-//            }
-//
-//
-//        });
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+                Log.i("In retrofit method failure message", t.toString());
+            }
+
+
+        });
         viewHolder.tv_userName.setText(objectItem.getUserName());
         return convertView;
     }
