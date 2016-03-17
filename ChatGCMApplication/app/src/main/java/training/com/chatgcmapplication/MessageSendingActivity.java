@@ -50,7 +50,7 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
     @Bind(R.id.txtContent)
     EditText txtContent;
     private MultiAutoCompleteTextView txtContacts;
-    private String[] test;
+    private String[] test = {"Harold", "Hawk"};
     private LinearProgressButton btnMorph;
     private MorphinButtonCreator buttonCreator;
     private Context context;
@@ -72,31 +72,9 @@ public class MessageSendingActivity extends AppCompatActivity implements View.On
                 .addConverterFactory(GsonConverterFactory.create(retrofitGenerator.gsonDateDeserializerGenerator()))
                 .build();
         service = client.create(RESTDatabaseDAO.class);
-
-        Call<ArrayList<Users>> call = service.getUsers(AppConfig.USER_NAME);
-        call.enqueue(new Callback<ArrayList<Users>>() {
-            @Override
-            public void onResponse(Call<ArrayList<Users>> call, retrofit2.Response<ArrayList<Users>> response) {
-                if (response.isSuccess()) {
-                    Users[] user_array = new Users[response.body().size()];
-                    user_array = response.body().toArray(user_array);
-                    ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, user_array);
-                    txtContacts.setAdapter(adapter);
-                    txtContacts.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-                    Log.i("In retrofit method success contact", user_array[1].getUserName() + "");
-
-
-                } else {
-                    Log.i("In retrofit method failure contact", response.body() + "");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ArrayList<Users>> call, Throwable t) {
-                Log.i("In retrofit method failure", "Fail roi nha contact a");
-            }
-
-        });
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, test);
+        txtContacts.setAdapter(adapter);
+        txtContacts.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         buttonCreator.morphToSquare(btnMorph, 0, context);
     }
 
