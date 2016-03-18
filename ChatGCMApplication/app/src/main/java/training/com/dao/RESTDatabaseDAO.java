@@ -37,7 +37,8 @@ public interface RESTDatabaseDAO {
 
     @GET("login")
     Call<Users> getUser(@Query("userName") String username,
-                        @Query("password") String password);
+                        @Query("password") String password,
+                        @Query("registrationId")String registraion_id);
     @GET("add")
     Call<ResponseBody> regist(@Query("userName") String username,
                        @Query("password") String password,

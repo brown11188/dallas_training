@@ -64,13 +64,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         editor.apply();
     }
 
-    private void doLogin(String userName, String password) {
+    private void checkLogin(String userName, String password, final String registraion_id) {
         RetrofitGenerator retrofitGenerator = new RetrofitGenerator();
         Retrofit retrofit = new Retrofit.Builder().
                 baseUrl(AppConfig.BASE_URL).
                 addConverterFactory(GsonConverterFactory.create()).build();
         RESTDatabaseDAO service = retrofit.create(RESTDatabaseDAO.class);
-        Call<Users> callUser = service.getUser(userName, password);
+        Call<Users> callUser = service.getUser(userName, password,registraion_id);
         callUser.enqueue(new Callback<Users>() {
             @Override
             public void onResponse(Call<Users> call, Response<Users> response) {
@@ -89,13 +89,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(getApplicationContext(), "Please, check your internet connection", Toast.LENGTH_SHORT).show();
             }
         });
-//       boolean check = retrofitCallBackUtil.login(userName, password, service, getApplicationContext());
-//        if (check) {
-//            Intent intent = new Intent(getApplicationContext(), HomePageActivity.class);
-//            startActivity(intent);
-//        } else {
-//            Toast.makeText(getApplicationContext(), "Username or password is Wrong !", Toast.LENGTH_SHORT).show();
-//        }
 
     }
 
@@ -111,6 +104,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Intent intent = new Intent(this, RegisterActivity.class);
                 startActivity(intent);
         }
+    }
+
+    private void doLogin(final String username, final String password) {
+        RegistrationIdManager registrationIdManager = new RegistrationIdManager(this, AppConfig.SENDER_ID);
+        registrationIdManager.registerIfNeeded(new RegistrationIdManager.RegistrationCompletedHandler() {
+            @Override
+            public void onSuccess(String registrationId, boolean isNewRegistration) {
+                checkLogin(username, password, registrationId);
+            }
+
+            @Override
+            public void onFailure(String ex) {
+                Log.i("Registration Id", "Register Fail");
+            }
+        });
     }
 
 }

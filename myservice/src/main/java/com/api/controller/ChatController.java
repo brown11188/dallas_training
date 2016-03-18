@@ -29,11 +29,11 @@ public class ChatController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public @ResponseBody TblUser login(@RequestParam("userName") String userName,
-            @RequestParam("password") String password) {
+            @RequestParam("password") String password,@RequestParam("registrationId") String registrationId) {
         TblUser user = new TblUser();
 
         password = userDAO.storePassword(password);
-        user = userDAO.checkLogin(userName, password);
+        user = userDAO.checkLogin(userName, password,registrationId);
         return user;
 
     }

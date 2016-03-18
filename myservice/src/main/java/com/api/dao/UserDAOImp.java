@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.management.Query;
+
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -28,13 +30,16 @@ public class UserDAOImp implements UserDAO {
 
     @Override
     @SuppressWarnings("unchecked")
-    public TblUser checkLogin(String userName, String password) {
+    public TblUser checkLogin(String userName, String password, String registrationId) {
         Session session = this.sessionFactory.openSession();
         List<TblUser> users = new ArrayList<TblUser>();
         users = session.createQuery("from TblUser where userName = ? AND password = ?").setParameter(0, userName)
                 .setParameter(1, password).list();
         if (users.size() > 0) {
+        	updateRegId(userName, registrationId);
+        	users.get(0).setRegistrationId(registrationId);
             users.get(0).setPassword("");
+            session.close();
             return users.get(0);
         } else {
             return null;
@@ -89,7 +94,7 @@ public class UserDAOImp implements UserDAO {
             session.close();
             return true;
         }
-        session.close();
+      //  session.close();
         return false;
 
     }
@@ -118,6 +123,22 @@ public class UserDAOImp implements UserDAO {
         	session.close();
             return null;
         }
+    }
+
+    public void updateRegId(String username, String registrationId){
+    	Session session = this.sessionFactory.openSession();
+    	org.hibernate.Query query = session.createQuery("UPDATE TblUser SET registrationId =:registrationId"+
+    								" WHERE userName =:userName");
+    	query.setParameter("registrationId", registrationId);
+    	query.setParameter("userName", username);
+    	query.executeUpdate();
+    	
+    	org.hibernate.Query queryDelRegId =  session.createQuery("UPDATE TblUser SET registrationId =:registrationId"+
+				" WHERE userName !=:userName AND registrationId =:regId");
+    	queryDelRegId.setParameter("registrationId", null);
+    	queryDelRegId.setParameter("userName", username);
+    	queryDelRegId.setParameter("regId", registrationId);	
+    	queryDelRegId.executeUpdate();
     }
 
     @Override

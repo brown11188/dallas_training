@@ -19,11 +19,13 @@ public interface UserDAO {
 
     TblMessage getLastMessage(int user_id, int sender_id);
 
-    TblUser checkLogin(String userName, String password);
+    TblUser checkLogin(String userName, String password,String registrationId);
 
     List<TblMessage> getLastTenMessages(int user_id, int sender_id, int offsetNumber);
 
     String storePassword(String password);
 
     List<TblUser> getUsers(String userName);
+	
+	void updateRegId(String username,String registrationId);
 }

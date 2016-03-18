@@ -102,27 +102,27 @@ public class RetrofitCallBackUtil {
         });
     }
 
-    public boolean login(String username, String password, RESTDatabaseDAO service, final Context context) {
-        final boolean[] check = {false};
-        Call<Users> callUser = service.getUser(username, password);
-        callUser.enqueue(new Callback<Users>() {
-            @Override
-            public void onResponse(Call<Users> call, Response<Users> response) {
-                if (response.isSuccess()) {
-                    Users user = response.body();
-                    saveUser(user, context);
-                    check[0] = true;
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Users> call, Throwable t) {
-                Log.i("login", "oh shit \n" + t);
-                Toast.makeText(context.getApplicationContext(), "Please, check your internet connection", Toast.LENGTH_SHORT).show();
-            }
-        });
-        return check[0];
-    }
+//    public boolean login(String username, String password, RESTDatabaseDAO service, final Context context) {
+//        final boolean[] check = {false};
+//        Call<Users> callUser = service.getUser(username, password);
+//        callUser.enqueue(new Callback<Users>() {
+//            @Override
+//            public void onResponse(Call<Users> call, Response<Users> response) {
+//                if (response.isSuccess()) {
+//                    Users user = response.body();
+//                    saveUser(user, context);
+//                    check[0] = true;
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Users> call, Throwable t) {
+//                Log.i("login", "oh shit \n" + t);
+//                Toast.makeText(context.getApplicationContext(), "Please, check your internet connection", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//        return check[0];
+//    }
 
     private void saveUser(Users user, Context context) {
         SharedPreferences preferences = context.getApplicationContext().getSharedPreferences("loginPref", Context.MODE_PRIVATE);

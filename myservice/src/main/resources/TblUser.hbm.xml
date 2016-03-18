@@ -15,7 +15,7 @@
             <column name="password" length="100" not-null="true" />
         </property>
         <property name="registrationId" type="string">
-            <column name="registration_id" length="255" not-null="true" />
+            <column name="registration_id" length="255" not-null="false" />
         </property>
     </class>
 </hibernate-mapping>
