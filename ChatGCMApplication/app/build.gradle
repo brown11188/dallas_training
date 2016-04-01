@@ -36,6 +36,13 @@ dependencies {
     compile 'com.android.support:support-v13:23.1.1'
     compile 'com.mcxiaoke.volley:library-aar:1.0.0'
     compile 'com.google.android.gms:play-services-gcm:8.3.0'
+    compile 'com.google.android.gms:play-services-drive:8.3.0'
+    compile('com.google.api-client:google-api-client-android:1.20.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    compile('com.google.apis:google-api-services-drive:v3-rev6-1.20.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
     compile 'com.fasterxml.jackson.core:jackson-databind:2.2.1'
     compile 'com.fasterxml.jackson.core:jackson-core:2.2.1'
     compile 'com.fasterxml.jackson.core:jackson-annotations:2.2.1'
@@ -45,6 +52,7 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.0.0-beta4'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta4'
+    compile 'com.squareup.picasso:picasso:2.5.2'
 
 }
 apply plugin: 'com.google.gms.google-services'

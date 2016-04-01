@@ -4,8 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -15,9 +22,27 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.MetadataChangeSet;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -38,7 +63,8 @@ import training.com.model.Users;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, RetrofitResponseCallBack {
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, RetrofitResponseCallBack, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
     private static EditText txt_chat;
     private String registId;
     private MessageSender mgsSender;
@@ -52,10 +78,19 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.listMessage)
     ListView lv_message;
+    @Bind(R.id.btn_image_picker)
+    Button btn_image_picker;
     private RetrofitGenerator retrofitGenerator;
     private RetrofitCallBackUtil retrofitCallBackUtil;
     private RESTDatabaseDAO service;
     private static final int OFFSET_NUMBER_DEFAULT = 0;
+    private static final int IMAGE_CODE = 1;
+
+    private GoogleApiClient mGoogleApiClient;
+    private static final String TAG = "chat-application";
+    private static final int REQUEST_CODE_CAPTURE_IMAGE = 1;
+    private static final int REQUEST_CODE_CREATOR = 4;
+    private static final int REQUEST_CODE_RESOLUTION = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +125,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         registId = bundle.getString("regId");
         userId = bundle.getInt("userId");
         retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, OFFSET_NUMBER_DEFAULT, service, this);
+
     }
 
     private BroadcastReceiver onNotice = new BroadcastReceiver() {
@@ -133,7 +169,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         return mgsContent;
     }
 
-    @OnClick({R.id.btn_send, R.id.cryImg, R.id.smileImg, R.id.sadImg, R.id.angryImg})
+    @OnClick({R.id.btn_send, R.id.cryImg, R.id.smileImg, R.id.sadImg, R.id.angryImg, R.id.btn_image_picker})
     @Override
     public void onClick(View v) {
         final String message;
@@ -181,6 +217,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.sadImg:
                 showEmoji(":(");
+                break;
+            case R.id.btn_image_picker:
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_CODE);
                 break;
         }
     }
@@ -247,6 +289,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
         if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
+        getImageFromUrl("https://drive.google.com/uc?id=0ByI5I_-bniN3dUdtM01NT3o4WEU");
     }
 
     @Override
@@ -258,5 +301,175 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onFailure() {
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == IMAGE_CODE) {
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    String picturePath = cursor.getString(columnIndex);
+                    cursor.close();
+
+                    TextView txt_content = (TextView) findViewById(R.id.txtMessage);
+                    txt_content.setBackground(new BitmapDrawable(getResources(), BitmapFactory.decodeFile(picturePath)));
+                    Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+
+                    try {
+                        File file = new File(getApplicationContext().getCacheDir(), "test_file");
+                        file.createNewFile();
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+                        byte[] bitmapdata = bos.toByteArray();
+
+                        //write the bytes in file
+                        FileOutputStream fos = new FileOutputStream(file);
+                        fos.write(bitmapdata);
+                        fos.flush();
+                        fos.close();
+                        saveFileToGoogleDrive(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            } else if (requestCode == REQUEST_CODE_RESOLUTION) {
+
+
+                Log.i(TAG, "Error resolution success.");
+
+                // Make sure the app is not already connected or attempting to connect
+                if (!mGoogleApiClient.isConnecting() &&
+                        !mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.connect();
+                }
+
+            } else if (requestCode == REQUEST_CODE_CREATOR) {
+                Log.i(TAG, "File successfully saved.");
+
+            } else {
+                GooglePlayServicesUtil.getErrorDialog(requestCode, this, 0).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mGoogleApiClient == null) {
+            // Create the API client and bind it to an instance variable.
+            // We use this instance as the callback for connection and connection
+            // failures.
+            // Since no account name is passed, the user is prompted to choose.
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Drive.API)
+                    .addScope(Drive.SCOPE_FILE)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+        }
+        // Connect the client. Once connected, the camera is launched.
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.i(TAG, "API client connected.");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "GoogleApiClient connection suspended");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        // Called whenever the API client fails to connect.
+        Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
+        if (!result.hasResolution()) {
+            // show the localized error dialog.
+            GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, 0).show();
+            return;
+        }
+        // The failure has a resolution. Resolve it.
+        // Called typically when the app is not yet authorized, and an
+        // authorization
+        // dialog is displayed to the user.
+        try {
+            result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
+        } catch (IntentSender.SendIntentException e) {
+            Log.e(TAG, "Exception while starting resolution activity", e);
+            // There was an error with the resolution intent. Try again.
+            mGoogleApiClient.connect();
+        }
+
+    }
+
+    private void saveFileToGoogleDrive(final File file) {
+        Drive.DriveApi.newDriveContents(mGoogleApiClient)
+                .setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
+                    @Override
+                    public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
+                        if (!driveContentsResult.getStatus().isSuccess()) {
+                            Log.i(TAG, "Failed to create new contents.");
+                            return;
+                        }
+//                        Log.i(TAG, "New content has been created");
+                        OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
+                        try {
+                            FileInputStream fileInputStream = new FileInputStream(file);
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                                outputStream.write(buffer, 0, bytesRead);
+                            }
+                        } catch (Exception e) {
+                            Log.e("FileNotFoundException", e.getMessage());
+                        }
+//
+
+                        MetadataChangeSet metadataChangeSet = new MetadataChangeSet
+                                .Builder()
+                                .setMimeType("image/JPEG").setTitle("").
+                                        setStarred(true).build();
+                        Drive.DriveApi.getRootFolder(mGoogleApiClient)
+                                .createFile(mGoogleApiClient, metadataChangeSet, driveContentsResult.getDriveContents())
+                                .setResultCallback(null);
+                    }
+                });
+
+    }
+
+
+    private void getImageFromUrl(String url) {
+        try {
+            Message messageObj = new Message();
+            messageObj.setMessage(url);
+            messageObj.setUserId(AppConfig.USER_ID);
+            messageObj.setSender_id(userId);
+            messageObj.setExpiresTime(timeUtil.formatDateTime(timeUtil.getCurrentTime()));
+            messageAdapter.add(messageObj);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        messageAdapter.notifyDataSetChanged();
+    }
+
 
 }

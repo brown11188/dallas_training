@@ -90,6 +90,12 @@
                     android:src="@drawable/sad"
                     android:contentDescription="" />
 
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Image"
+                    android:id="@+id/btn_image_picker" />
+
             </LinearLayout>
 
             <LinearLayout

@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,6 +92,27 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         setAlignment(messageViewHolder, message.getUserId());
         messageViewHolder.txtMessage.setText(getEmotionText(getContext(), message.getMessage()));
         messageViewHolder.txtInfo.setText(message.getExpiresTime() + "");
+
+        if(message.getMessage().contains("https://drive.google.com/uc?id=")){
+            messageViewHolder.txtMessage.setVisibility(View.GONE);
+            messageViewHolder.contentWithBG.setBackground(null);
+            messageViewHolder.img_messageImage.setVisibility(View.VISIBLE);
+            Picasso.with(getContext())
+                    .load(message.getMessage())
+                    .resize(240, 240)
+                    .centerInside()
+                    .into(messageViewHolder.img_messageImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.i("Success Picasso", "Load successful");
+                        }
+
+                        @Override
+                        public void onError() {
+                            Log.i("Failure Picasso", "Load not successful");
+                        }
+                    });
+        }
 
         return convertView;
     }
@@ -166,15 +191,19 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         holder.content = (LinearLayout) v.findViewById(R.id.content);
         holder.contentWithBG = (LinearLayout) v.findViewById(R.id.contentWithBackground);
         holder.txtInfo = (TextView) v.findViewById(R.id.txtInfo);
+        holder.img_messageImage = (ImageView) v.findViewById(R.id.img_messageImage);
         return holder;
     }
 
     private static class MessageViewHolder {
         public TextView txtMessage;
         public TextView txtInfo;
+        public ImageView img_messageImage;
         public LinearLayout content;
         public LinearLayout contentWithBG;
     }
+
+
 
 
 }
