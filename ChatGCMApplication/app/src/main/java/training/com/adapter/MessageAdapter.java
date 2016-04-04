@@ -2,8 +2,11 @@ package training.com.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
@@ -20,12 +23,16 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import training.com.chatgcmapplication.R;
 import training.com.common.AppConfig;
@@ -72,13 +79,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        MessageViewHolder messageViewHolder;
+        final MessageViewHolder messageViewHolder;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
-        emotions.put(":D",R.drawable.smile);
+        emotions.put(":D", R.drawable.smile);
         emotions.put(":(", R.drawable.sad);
         emotions.put(":((", R.drawable.cry);
-        emotions.put(":@",R.drawable.angry);
+        emotions.put(":@", R.drawable.angry);
 
         fillMessages();
         if (convertView == null) {
@@ -93,26 +100,51 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         messageViewHolder.txtMessage.setText(getEmotionText(getContext(), message.getMessage()));
         messageViewHolder.txtInfo.setText(message.getExpiresTime() + "");
 
-        if(message.getMessage().contains("https://drive.google.com/uc?id=")){
+
+        if (message.getMessage().contains("https://drive.google.com/uc?id=")) {
+            final String[] array = message.getMessage().split("=");
+            Log.i("Message Image Test", array[1]);
+
             messageViewHolder.txtMessage.setVisibility(View.GONE);
             messageViewHolder.contentWithBG.setBackground(null);
             messageViewHolder.img_messageImage.setVisibility(View.VISIBLE);
-            Picasso.with(getContext())
-                    .load(message.getMessage())
-                    .resize(240, 240)
-                    .centerInside()
-                    .into(messageViewHolder.img_messageImage, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.i("Success Picasso", "Load successful");
-                        }
+            File file = new File(Environment.getExternalStorageDirectory() + "/Image-" + array[1] + ".jpg");
+            if (!file.exists()) {
+                Target target = new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        messageViewHolder.img_messageImage.setImageBitmap(bitmap);
+                        saveImage(bitmap, array[1]);
+                    }
 
-                        @Override
-                        public void onError() {
-                            Log.i("Failure Picasso", "Load not successful");
-                        }
-                    });
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                };
+                Picasso.with(getContext())
+                        .load(message.getMessage())
+                        .resize(240, 240)
+                        .centerInside()
+                        .into(target);
+                Log.i("Not Already had", "Image-" + array[1] + ".jpg");
+
+            } else {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                Bitmap bitmap = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/Image-" + array[1] + ".jpg");
+                messageViewHolder.img_messageImage.setImageBitmap(bitmap);
+                Log.i("Already had", "/saved_images/" + "Image-" + array[1] + ".jpg");
+            }
+
+
         }
+
 
         return convertView;
     }
@@ -204,6 +236,27 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
 
+    private void saveImage(Bitmap finalBitmap, String imageId) {
+
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root);
+        myDir.mkdirs();
+        String fname = "Image-" + imageId + ".jpg";
+        File file = new File(myDir, fname);
+        if (file.exists()) file.delete();
+        Log.i("LOAD", root + fname);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void checkMediaMessage(Message message) {
+
+    }
 
 
 }
