@@ -86,6 +86,12 @@
             android:label="@string/title_activity_message_sending"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <service
+            android:name="training.com.services.GoogleDriveEventService" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.drive.events.HANDLE_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

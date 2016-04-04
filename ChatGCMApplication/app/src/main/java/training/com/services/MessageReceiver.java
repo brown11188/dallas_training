@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -43,7 +44,7 @@ public class MessageReceiver extends WakefulBroadcastReceiver {
 
             @Override
             public void onSuccessUser(Users user) {
-                retrofitCallBackUtil.addMessageToServer(message, AppConfig.USER_ID, user.getUserId(), service);
+             //   retrofitCallBackUtil.addMessageToServer(message, user.getUserId(), AppConfig.USER_ID, service);
             }
 
             @Override

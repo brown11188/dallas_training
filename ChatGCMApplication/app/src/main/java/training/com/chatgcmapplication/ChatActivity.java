@@ -22,9 +22,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -32,14 +32,16 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveFile;
+import com.google.android.gms.drive.DriveFolder;
+import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResource;
+import com.google.android.gms.drive.ExecutionOptions;
 import com.google.android.gms.drive.MetadataChangeSet;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -72,6 +74,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private TimeUtil timeUtil;
     private MessageAdapter messageAdapter;
     private int offsetNumber = 5;
+    private String id;
     @Bind(R.id.btn_send)
     Button btn_send;
     @Bind(R.id.swipeLayout)
@@ -186,6 +189,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             Retrofit client = retrofitGenerator.createRetrofit();
                             RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
                             if (mgsSender.sendPost(mgsContent)) {
+                                Log.i("TEST_USER_ID_SEND", String.valueOf(userId));
+                                Log.i("TEST_SENDER_ID_SEND", String.valueOf(AppConfig.USER_ID));
                                 retrofitCallBackUtil.addMessageToServer(message, userId, AppConfig.USER_ID, service);
                             }
                             return null;
@@ -354,30 +359,39 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             } else if (requestCode == REQUEST_CODE_CREATOR) {
                 Log.i(TAG, "File successfully saved.");
-
             } else {
                 GooglePlayServicesUtil.getErrorDialog(requestCode, this, 0).show();
             }
+
+
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mGoogleApiClient == null) {
-            // Create the API client and bind it to an instance variable.
-            // We use this instance as the callback for connection and connection
-            // failures.
-            // Since no account name is passed, the user is prompted to choose.
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
-        }
-        // Connect the client. Once connected, the camera is launched.
-        mGoogleApiClient.connect();
+
+        new AsyncTask<Void,Void,Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (mGoogleApiClient == null) {
+                    getDriveConnect();
+                }
+                mGoogleApiClient.connect();
+                return null;
+            }
+        }.execute();
+
+    }
+
+    protected void getDriveConnect(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_FILE)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     @Override
@@ -394,23 +408,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.i(TAG, "GoogleApiClient connection suspended");
+    public void onConnectionSuspended ( int i){
+            Log.i(TAG, "GoogleApiClient connection suspended");
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        // Called whenever the API client fails to connect.
         Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
         if (!result.hasResolution()) {
-            // show the localized error dialog.
             GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, 0).show();
             return;
         }
-        // The failure has a resolution. Resolve it.
-        // Called typically when the app is not yet authorized, and an
-        // authorization
-        // dialog is displayed to the user.
         try {
             result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
         } catch (IntentSender.SendIntentException e) {
@@ -430,7 +438,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             Log.i(TAG, "Failed to create new contents.");
                             return;
                         }
-//                        Log.i(TAG, "New content has been created");
+
                         OutputStream outputStream = driveContentsResult.getDriveContents().getOutputStream();
                         try {
                             FileInputStream fileInputStream = new FileInputStream(file);
@@ -442,20 +450,36 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         } catch (Exception e) {
                             Log.e("FileNotFoundException", e.getMessage());
                         }
-//
-
                         MetadataChangeSet metadataChangeSet = new MetadataChangeSet
                                 .Builder()
-                                .setMimeType("image/JPEG").setTitle("").
-                                        setStarred(true).build();
+                                .setMimeType("image/JPEG").setTitle("")
+                                .setStarred(true)
+                                .build();
                         Drive.DriveApi.getRootFolder(mGoogleApiClient)
-                                .createFile(mGoogleApiClient, metadataChangeSet, driveContentsResult.getDriveContents())
-                                .setResultCallback(null);
+                                .createFile(mGoogleApiClient,
+                                        metadataChangeSet,
+                                        driveContentsResult.getDriveContents(),
+                                        new ExecutionOptions.Builder().setNotifyOnCompletion(true).build())
+                                .setResultCallback(fileCallBack);
                     }
                 });
 
     }
+    final private ResultCallback<DriveFolder.DriveFileResult> fileCallBack =
+            new ResultCallback<DriveFolder.DriveFileResult>() {
+        @Override
+        public void onResult(DriveFolder.DriveFileResult fileResult) {
+            if (fileResult.getStatus().isSuccess()) {
+                DriveId driveId = fileResult.getDriveFile().getDriveId();
+                DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, driveId);
+                file.addChangeSubscription(mGoogleApiClient);
 
+
+            }
+        }
+
+
+    };
 
     private void getImageFromUrl(String url) {
         try {
