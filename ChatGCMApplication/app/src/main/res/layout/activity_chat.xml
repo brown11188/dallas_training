@@ -29,21 +29,20 @@
         </android.support.design.widget.AppBarLayout>
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipeLayout"
-            android:layout_width="match_parent"
-            android:layout_height="330dp"
-            android:layout_weight="0.81">
+        android:id="@+id/swipeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="330dp"
+        android:layout_weight="0.81">
 
-            <ListView
-                android:id="@+id/listMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="false"
-                android:layout_alignParentTop="false"
-                android:divider="@null"
-                android:stackFromBottom="true"
-                android:transcriptMode="alwaysScroll"
-                android:listSelector="@android:color/transparent" />
+        <ListView
+            android:id="@+id/listMessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+
+            android:listSelector="@android:color/transparent"
+            android:stackFromBottom="true"
+            android:transcriptMode="alwaysScroll" />
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
@@ -87,14 +86,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="0.5"
-                    android:src="@drawable/sad"
-                    android:contentDescription="" />
+                    android:contentDescription=""
+                    android:src="@drawable/sad" />
 
                 <Button
+                    android:id="@+id/btn_image_picker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Image"
-                    android:id="@+id/btn_image_picker" />
+                    android:text="Image" />
 
             </LinearLayout>
 

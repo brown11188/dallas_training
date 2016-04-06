@@ -20,7 +20,7 @@ public class AppConfig {
     //Hawk's device registration key
     public static final String HAWK_KEY = "cCTBwELYhjs:APA91bGdxF72vrJmxdPx281P_czcdCMN_I_aULsRwwZFZamyVUNZ_CC-pNJYM5r-u8w2cto5XkeLAdPdQddPaP2DKlU2CMec6Ld6-CBk8xQ3RYTq9M2hJnNyPowlG8wV_MceXcQ6Kv-Y";
 
-    public static final String BASE_URL = "http://192.168.10.147:8080/myservice/";
+    public static final String BASE_URL = "http://192.168.11.6:8080/myservice/";
 
     public static int USER_ID;
 

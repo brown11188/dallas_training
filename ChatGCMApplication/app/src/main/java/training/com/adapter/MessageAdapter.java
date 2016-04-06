@@ -95,15 +95,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } else {
             messageViewHolder = (MessageViewHolder) convertView.getTag();
         }
+
         Message message = messages.get(position);
         setAlignment(messageViewHolder, message.getUserId());
-        messageViewHolder.txtMessage.setText(getEmotionText(getContext(), message.getMessage()));
-        messageViewHolder.txtInfo.setText(message.getExpiresTime() + "");
-
-
         if (message.getMessage().contains("https://drive.google.com/uc?id=")) {
             final String[] array = message.getMessage().split("=");
-            Log.i("Message Image Test", array[1]);
+//            Log.i("Message Image Test", array[1]);
 
             messageViewHolder.txtMessage.setVisibility(View.GONE);
             messageViewHolder.contentWithBG.setBackground(null);
@@ -143,6 +140,12 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             }
 
 
+        } else {
+            messageViewHolder.img_messageImage.setVisibility(View.GONE);
+            messageViewHolder.txtMessage.setVisibility(View.VISIBLE);
+            messageViewHolder.txtMessage.setText(getEmotionText(getContext(), message.getMessage()));
+            messageViewHolder.txtInfo.setText(message.getExpiresTime() + "");
+            Log.i("Message Image Test", position + "");
         }
 
 
@@ -253,9 +256,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-    private void checkMediaMessage(Message message) {
-
     }
 
 

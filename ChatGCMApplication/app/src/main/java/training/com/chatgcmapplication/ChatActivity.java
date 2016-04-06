@@ -81,8 +81,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     SwipeRefreshLayout swipeRefreshLayout;
     @Bind(R.id.listMessage)
     ListView lv_message;
-    @Bind(R.id.btn_image_picker)
-    Button btn_image_picker;
     private RetrofitGenerator retrofitGenerator;
     private RetrofitCallBackUtil retrofitCallBackUtil;
     private RESTDatabaseDAO service;
@@ -146,6 +144,14 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
             messageAdapter.notifyDataSetChanged();
+        }
+    };
+
+    private BroadcastReceiver driveReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String driveId = intent.getStringExtra("driveId");
+            Log.i("Drive Id", driveId);
         }
     };
 
@@ -293,6 +299,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onSuccessMessages(ArrayList<Message> messages) {
         messageAdapter = new MessageAdapter(getApplicationContext(), R.layout.chat_item, messages);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(driveReceiver, new IntentFilter("GoogleDrive"));
         if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
         getImageFromUrl("https://drive.google.com/uc?id=0ByI5I_-bniN3dUdtM01NT3o4WEU");
     }
@@ -339,6 +346,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         fos.write(bitmapdata);
                         fos.flush();
                         fos.close();
+
                         saveFileToGoogleDrive(file);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -371,7 +379,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
 
-        new AsyncTask<Void,Void,Void>() {
+        new AsyncTask<Void, Void, Void>() {
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -385,7 +393,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    protected void getDriveConnect(){
+    protected void getDriveConnect() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -408,8 +416,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onConnectionSuspended ( int i){
-            Log.i(TAG, "GoogleApiClient connection suspended");
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "GoogleApiClient connection suspended");
     }
 
     @Override
@@ -465,21 +473,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 });
 
     }
+
     final private ResultCallback<DriveFolder.DriveFileResult> fileCallBack =
             new ResultCallback<DriveFolder.DriveFileResult>() {
-        @Override
-        public void onResult(DriveFolder.DriveFileResult fileResult) {
-            if (fileResult.getStatus().isSuccess()) {
-                DriveId driveId = fileResult.getDriveFile().getDriveId();
-                DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, driveId);
-                file.addChangeSubscription(mGoogleApiClient);
+                @Override
+                public void onResult(DriveFolder.DriveFileResult fileResult) {
+                    if (fileResult.getStatus().isSuccess()) {
+                        DriveId driveId = fileResult.getDriveFile().getDriveId();
+                        DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, driveId);
+                        file.addChangeSubscription(mGoogleApiClient);
+                    }
+                }
 
 
-            }
-        }
-
-
-    };
+            };
 
     private void getImageFromUrl(String url) {
         try {
