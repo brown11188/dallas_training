@@ -12,6 +12,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,20 +26,29 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResource;
 import com.google.android.gms.drive.ExecutionOptions;
+import com.google.android.gms.drive.Metadata;
+import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.Permission;
+import com.google.android.gms.drive.metadata.CustomPropertyKey;
+import com.google.android.gms.drive.metadata.internal.CustomProperty;
+import com.google.android.gms.drive.query.Filter;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -65,7 +76,7 @@ import training.com.model.Users;
 import training.com.services.MessageSender;
 import training.com.services.MessageSenderContent;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, RetrofitResponseCallBack, GoogleApiClient.ConnectionCallbacks,
+public class ChatActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, RetrofitResponseCallBack, ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
     private static EditText txt_chat;
     private String registId;
@@ -93,10 +104,13 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CODE_CREATOR = 4;
     private static final int REQUEST_CODE_RESOLUTION = 3;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -151,7 +165,19 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onReceive(Context context, Intent intent) {
             String driveId = intent.getStringExtra("driveId");
-            Log.i("Drive Id", driveId);
+            String message = "https://drive.google.com/uc?id=" + driveId;
+            try {
+                Message messageObj = new Message();
+                messageObj.setMessage(message);
+                messageObj.setUserId(AppConfig.USER_ID);
+                messageObj.setSender_id(userId);
+                messageObj.setExpiresTime(timeUtil.formatDateTime(timeUtil.getCurrentTime()));
+                messageAdapter.add(messageObj);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            messageAdapter.notifyDataSetChanged();
+            sendMessageGCM(message);
         }
     };
 
@@ -166,6 +192,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onNotice);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(driveReceiver);
         super.onDestroy();
     }
 
@@ -187,21 +214,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
                 message = txt_chat.getText().toString();
                 if (!message.equals("")) {
-                    mgsSender = new MessageSender();
-                    new AsyncTask<Void, Void, Void>() {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
-                            Retrofit client = retrofitGenerator.createRetrofit();
-                            RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
-                            if (mgsSender.sendPost(mgsContent)) {
-                                Log.i("TEST_USER_ID_SEND", String.valueOf(userId));
-                                Log.i("TEST_SENDER_ID_SEND", String.valueOf(AppConfig.USER_ID));
-                                retrofitCallBackUtil.addMessageToServer(message, userId, AppConfig.USER_ID, service);
-                            }
-                            return null;
-                        }
-                    }.execute();
+                    sendMessageGCM(message);
                     txt_chat.setText("");
 
                     try {
@@ -251,7 +264,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             protected Void doInBackground(Void... params) {
-//                retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, offsetNumber, service, ChatActivity.this);
                 retrofitCallBackUtil.getLastTenMessageCallBack(AppConfig.USER_ID, userId, offsetNumber, service, new RetrofitResponseCallBack() {
 
                     @Override
@@ -287,6 +299,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         TextView tvInfo = (TextView) view.findViewById(R.id.txtInfo);
         tvInfo.setVisibility(View.VISIBLE);
+        Log.i("Position", position + "");
     }
 
     private void showEmoji(String emoji) {
@@ -301,7 +314,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onNotice, new IntentFilter("Msg"));
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(driveReceiver, new IntentFilter("GoogleDrive"));
         if (messages.size() > 0) lv_message.setAdapter(messageAdapter);
-        getImageFromUrl("https://drive.google.com/uc?id=0ByI5I_-bniN3dUdtM01NT3o4WEU");
     }
 
     @Override
@@ -321,7 +333,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             if (requestCode == IMAGE_CODE) {
                 Uri selectedImage = data.getData();
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
                 Cursor cursor = getContentResolver().query(selectedImage,
                         filePathColumn, null, null, null);
                 if (cursor != null) {
@@ -329,13 +340,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String picturePath = cursor.getString(columnIndex);
                     cursor.close();
-
-                    TextView txt_content = (TextView) findViewById(R.id.txtMessage);
-                    txt_content.setBackground(new BitmapDrawable(getResources(), BitmapFactory.decodeFile(picturePath)));
                     Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-
                     try {
-                        File file = new File(getApplicationContext().getCacheDir(), "test_file");
+                        final File file = new File(getApplicationContext().getCacheDir(), "test_file");
                         file.createNewFile();
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
@@ -346,8 +353,15 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                         fos.write(bitmapdata);
                         fos.flush();
                         fos.close();
+                        bos.close();
+                        new AsyncTask<Void, Void, Void>() {
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                saveFileToGoogleDrive(file);
+                                return null;
+                            }
+                        }.execute();
 
-                        saveFileToGoogleDrive(file);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -406,6 +420,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
+
         }
         super.onPause();
     }
@@ -414,6 +429,25 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public void onConnected(Bundle bundle) {
         Log.i(TAG, "API client connected.");
     }
+
+    final private ResultCallback<DriveResource.MetadataResult> metadataRetrievedCallback = new
+            ResultCallback<DriveResource.MetadataResult>() {
+                @Override
+                public void onResult(DriveResource.MetadataResult result) {
+                    if (!result.getStatus().isSuccess()) {
+                        Log.v(TAG, "Problem while trying to fetch metadata.");
+                        return;
+                    }
+
+                    Metadata metadata = result.getMetadata();
+                    if (metadata.isTrashed()) {
+                        Log.v(TAG, "Folder is trashed");
+                    } else {
+                        Log.v(TAG, "Folder is not trashed");
+                    }
+
+                }
+            };
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -441,7 +475,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         Drive.DriveApi.newDriveContents(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
                     @Override
-                    public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
+                    public void onResult(final DriveApi.DriveContentsResult driveContentsResult) {
                         if (!driveContentsResult.getStatus().isSuccess()) {
                             Log.i(TAG, "Failed to create new contents.");
                             return;
@@ -455,24 +489,49 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                             while ((bytesRead = fileInputStream.read(buffer)) != -1) {
                                 outputStream.write(buffer, 0, bytesRead);
                             }
+                            fileInputStream.close();
+                            outputStream.close();
                         } catch (Exception e) {
                             Log.e("FileNotFoundException", e.getMessage());
                         }
-                        MetadataChangeSet metadataChangeSet = new MetadataChangeSet
+                        final MetadataChangeSet metadataChangeSet = new MetadataChangeSet
                                 .Builder()
-                                .setMimeType("image/JPEG").setTitle("")
+                                .setMimeType("image/JPEG")
+                                .setTitle("My image")
                                 .setStarred(true)
                                 .build();
-                        Drive.DriveApi.getRootFolder(mGoogleApiClient)
+                        DriveId driveId = DriveId.decodeFromString("DriveId:CAESABicCCDIlqKU-FQoAQ==");
+                        Drive.DriveApi.getFolder(mGoogleApiClient, driveId)
                                 .createFile(mGoogleApiClient,
                                         metadataChangeSet,
                                         driveContentsResult.getDriveContents(),
                                         new ExecutionOptions.Builder().setNotifyOnCompletion(true).build())
                                 .setResultCallback(fileCallBack);
+
+
+//                        Drive.DriveApi.getRootFolder(mGoogleApiClient)
+//                                .createFile(mGoogleApiClient,
+//                                        metadataChangeSet,
+//                                        driveContentsResult.getDriveContents(),
+//                                        new ExecutionOptions.Builder().setNotifyOnCompletion(true).build())
+//                                .setResultCallback(fileCallBack);
                     }
                 });
 
     }
+
+    ResultCallback<DriveFolder.DriveFolderResult> folderCreatedCallback = new
+            ResultCallback<DriveFolder.DriveFolderResult>() {
+                @Override
+                public void onResult(DriveFolder.DriveFolderResult result) {
+                    if (!result.getStatus().isSuccess()) {
+                        Log.i("Create folder", "Error while trying to create the folder");
+                        return;
+                    }
+                    Log.i("Create folder", "Created a folder: " + result.getDriveFolder().getDriveId().encodeToString());
+                }
+            };
+
 
     final private ResultCallback<DriveFolder.DriveFileResult> fileCallBack =
             new ResultCallback<DriveFolder.DriveFileResult>() {
@@ -480,26 +539,36 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 public void onResult(DriveFolder.DriveFileResult fileResult) {
                     if (fileResult.getStatus().isSuccess()) {
                         DriveId driveId = fileResult.getDriveFile().getDriveId();
-                        DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, driveId);
+
+                        final DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, driveId);
                         file.addChangeSubscription(mGoogleApiClient);
+//                        Thread thread =  new Thread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Log.i("ResourceId", file.getMetadata(mGoogleApiClient).await().getMetadata().);
+//                            }
+//                        });
+//                        thread.start();
+
                     }
                 }
-
-
             };
 
-    private void getImageFromUrl(String url) {
-        try {
-            Message messageObj = new Message();
-            messageObj.setMessage(url);
-            messageObj.setUserId(AppConfig.USER_ID);
-            messageObj.setSender_id(userId);
-            messageObj.setExpiresTime(timeUtil.formatDateTime(timeUtil.getCurrentTime()));
-            messageAdapter.add(messageObj);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        messageAdapter.notifyDataSetChanged();
+
+    private void sendMessageGCM(final String message) {
+        mgsSender = new MessageSender();
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                MessageSenderContent mgsContent = createMegContent(registId, AppConfig.USER_NAME);
+                Retrofit client = retrofitGenerator.createRetrofit();
+                RESTDatabaseDAO service = client.create(RESTDatabaseDAO.class);
+                if (mgsSender.sendPost(mgsContent)) {
+                    retrofitCallBackUtil.addMessageToServer(message, userId, AppConfig.USER_ID, service);
+                }
+                return null;
+            }
+        }.execute();
     }
 
 
